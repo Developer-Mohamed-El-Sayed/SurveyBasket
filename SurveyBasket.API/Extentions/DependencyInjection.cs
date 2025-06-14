@@ -5,7 +5,8 @@ public static class DependencyInjection
     public static IServiceCollection AddDependenciesServices(this IServiceCollection services)
     {
         services.AddControllerConfig()
-            .AddMapsterConfig();
+            .AddMapsterConfig()
+            .AddValidationConfig();
         return services;
     }
     private static IServiceCollection AddControllerConfig(this IServiceCollection services)
@@ -20,4 +21,9 @@ public static class DependencyInjection
         services.AddSingleton<IMapper>(new Mapper(mappingConfiguration));
         return services;
     }
+    private static IServiceCollection AddValidationConfig(this IServiceCollection services) =>
+        services.AddFluentValidationAutoValidation()
+        .AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+
+        
 }

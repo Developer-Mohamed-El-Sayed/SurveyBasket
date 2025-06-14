@@ -4,3 +4,6 @@ global using SurveyBasket.API.Extentions;
 global using Mapster;
 global using MapsterMapper;
 global using System.Reflection;
+global using FluentValidation;
+global using SurveyBasket.API.Contracts.Polls.Request;
+global using SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions;
