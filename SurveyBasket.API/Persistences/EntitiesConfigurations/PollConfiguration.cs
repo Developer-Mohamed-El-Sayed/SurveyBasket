@@ -11,10 +11,8 @@ public class PollConfiguration : IEntityTypeConfiguration<Poll>
         builder.Property(pk => pk.Id)
             .UseIdentityColumn();
         builder.Property(t => t.Title)
-            .IsRequired()
             .HasMaxLength(100);
         builder.Property(s => s.Summary)
-            .IsRequired()
             .HasMaxLength(1500);
             
     }

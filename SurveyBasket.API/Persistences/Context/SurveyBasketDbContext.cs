@@ -1,6 +1,7 @@
 ﻿namespace SurveyBasket.API.Persistences.Context;
 
-public class SurveyBasketDbContext(DbContextOptions<SurveyBasketDbContext> options): DbContext(options)
+public class SurveyBasketDbContext(DbContextOptions<SurveyBasketDbContext> options) 
+    : IdentityDbContext<ApplicationUser>(options)
 {
     public DbSet<Poll> Polls {  get; set; }
 
