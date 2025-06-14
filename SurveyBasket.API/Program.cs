@@ -1,6 +1,6 @@
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddDependenciesServices();
+builder.Services.AddDependenciesServices(builder.Configuration);
 
 var app = builder.Build();
 
