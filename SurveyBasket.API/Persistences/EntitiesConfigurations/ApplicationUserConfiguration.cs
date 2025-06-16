@@ -10,5 +10,11 @@ public class ApplicationUserConfiguration : IEntityTypeConfiguration<Application
         builder
             .Property(l => l.LastName)
             .HasMaxLength(100);
+        builder
+            .OwnsMany(u => u.RefreshTokens)
+            .ToTable("RefreshTokens")
+            .WithOwner()
+            .HasForeignKey("UserId");
+
     }
 }

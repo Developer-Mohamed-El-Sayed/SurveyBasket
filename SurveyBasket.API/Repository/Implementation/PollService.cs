@@ -14,8 +14,8 @@ public class PollService(SurveyBasketDbContext context) : IPollService
 
     public async Task DeleteAsync(int id, CancellationToken cancellationToken = default)
     {
-        var poll = await GetAsync(id, cancellationToken);
-        _context.Remove(poll);
+        var response = await GetAsync(id, cancellationToken);
+        _context.Remove(response.Adapt<Poll>());
         await _context.SaveChangesAsync(cancellationToken);
     }
 
@@ -39,7 +39,17 @@ public class PollService(SurveyBasketDbContext context) : IPollService
     public async Task UpdateAsync(int id,PollRequest request, CancellationToken cancellationToken = default)
     {
         var response = await GetAsync(id, cancellationToken);
-        response.Adapt<Poll>();
+        var responseToMainModel = new Poll
+        {
+            Id = id,
+            Title = response.Title,
+            Summary = response.Summary,
+            IsPublished = response.IsPublished,
+            StartsAt = response.StartsAt,
+            EndsAt = response.EndsAt
+        };
+        //var responseToMainModel1 = response.Adapt<Poll>();
+        _context.Update(responseToMainModel);
         await _context.SaveChangesAsync(cancellationToken);
     }
 }

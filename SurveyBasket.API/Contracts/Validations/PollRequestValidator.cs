@@ -7,13 +7,13 @@ public class PollRequestValidator : AbstractValidator<PollRequest>
         RuleFor(t => t.Title)
           .NotEmpty()
           .WithMessage("Title is required.")
-          .Length(3, 50)
+          .Length(3, 100)
           .WithMessage("Title must be between 3 and 100 characters.");
 
         RuleFor(s => s.Summary)
             .NotEmpty()
             .WithMessage("Summary is required.")
-            .Length(3, 500)
+            .Length(3, 1500)
             .WithMessage("Summary must be between 3 and 1500 characters.");
 
         RuleFor(s => s.StartsAt)
