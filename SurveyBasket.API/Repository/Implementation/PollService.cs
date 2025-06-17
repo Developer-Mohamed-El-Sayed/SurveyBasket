@@ -4,52 +4,56 @@ public class PollService(SurveyBasketDbContext context) : IPollService
 {
     private readonly SurveyBasketDbContext _context = context;
 
-    public async Task<PollResponse> CreateAsync(PollRequest request, CancellationToken cancellationToken = default)
+    public async Task<Result<PollResponse>> CreateAsync(PollRequest request, CancellationToken cancellationToken = default)
     {
         var response = request.Adapt<Poll>();
         await _context.AddAsync(response, cancellationToken);
         await _context.SaveChangesAsync(cancellationToken);
-        return response.Adapt<PollResponse>();
+        var result = response.Adapt<PollResponse>();
+        return Result.Success(result);
     }
 
-    public async Task DeleteAsync(int id, CancellationToken cancellationToken = default)
+    public async Task<Result> DeleteAsync(int id, CancellationToken cancellationToken = default)
     {
         var response = await GetAsync(id, cancellationToken);
+        if(response is null)
+            return Result.Failure(PollErrors.PollNotFound);
         _context.Remove(response.Adapt<Poll>());
         await _context.SaveChangesAsync(cancellationToken);
+        return Result.Success();
     }
 
-    public async Task<IEnumerable<PollResponse>> GetAllAsync(CancellationToken cancellationToken = default)
+    public async Task<Result<IEnumerable<PollResponse>>> GetAllAsync(CancellationToken cancellationToken = default)
     {
         var response = await _context.Polls
             .AsNoTracking()
             .OrderBy(s => s.StartsAt)
             .ToListAsync(cancellationToken);
-        return response.Adapt<IEnumerable<PollResponse>>();
+        if (response is null)
+            return Result.Failure<IEnumerable<PollResponse>>(PollErrors.PollNotFound);
+        var result = response.Adapt<IEnumerable<PollResponse>>();
+        return Result.Success(result);
     }
 
-    public async Task<PollResponse> GetAsync(int id, CancellationToken cancellationToken = default)
+    public async Task<Result<PollResponse>> GetAsync(int id, CancellationToken cancellationToken = default)
     {
         var response = await _context.Polls
             .OrderBy(s => s.StartsAt)
             .SingleOrDefaultAsync(pk => pk.Id == id,cancellationToken);
-        return response.Adapt<PollResponse>();
+        if (response is null)
+            return Result.Failure<PollResponse>(PollErrors.PollNotFound);
+        var result = response.Adapt<PollResponse>();
+        return Result.Success(result);
     }
 
-    public async Task UpdateAsync(int id,PollRequest request, CancellationToken cancellationToken = default)
+    public async Task<Result> UpdateAsync(int id,PollRequest request, CancellationToken cancellationToken = default)
     {
         var response = await GetAsync(id, cancellationToken);
-        var responseToMainModel = new Poll
-        {
-            Id = id,
-            Title = response.Title,
-            Summary = response.Summary,
-            IsPublished = response.IsPublished,
-            StartsAt = response.StartsAt,
-            EndsAt = response.EndsAt
-        };
-        //var responseToMainModel1 = response.Adapt<Poll>();
-        _context.Update(responseToMainModel);
+        if(response is null)
+            return Result.Failure(PollErrors.PollNotFound);
+        var result = response.Adapt<Poll>();
+        _context.Update(result);
         await _context.SaveChangesAsync(cancellationToken);
+        return Result.Success();
     }
 }

@@ -7,6 +7,7 @@ public static class DependencyInjection
         services
             .AddControllerConfig()
             .AddMapsterConfig()
+            .AddCORSConfig(configuration)
             .AddIdentityConfig()
             .AddValidationConfig()
             .AddRegistrationConfig()
@@ -78,5 +79,15 @@ public static class DependencyInjection
         });
         return services;
     }
+    private static IServiceCollection AddCORSConfig(this IServiceCollection services,IConfiguration configuration) =>
+        services.AddCors(options =>
+        {
+            options.AddDefaultPolicy(option => 
+                option
+                .WithOrigins(configuration.GetSection("AllowedOrigins").Get<string[]>()!)
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+            );
+        });
 
 }
