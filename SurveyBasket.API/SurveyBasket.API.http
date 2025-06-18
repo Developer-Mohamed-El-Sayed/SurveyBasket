@@ -4,7 +4,7 @@ GET {{SurveyBasket.API_HostAddress}}/api/polls // Connect to Internet
 
 ###
 
-@id=0
+@id=1
 DELETE {{SurveyBasket.API_HostAddress}}/api/polls/{{id}}
 
 ###
