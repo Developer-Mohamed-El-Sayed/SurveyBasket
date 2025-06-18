@@ -24,8 +24,7 @@ public class AuthService(UserManager<ApplicationUser> userManager, IJwtProvider 
             ExpiresOn = expirationRefreshTokenDays
         });
         await _userManager.UpdateAsync(user);
-        var respones = new AuthResponse(user.Id, user.FirstName, user.LastName, user.Email, token, expiresIn, refreshToken, expirationRefreshTokenDays);
-        return Result.Success(respones);
+        return Result.Success(new AuthResponse(user.Id, user.FirstName, user.LastName, user.Email, token, expiresIn, refreshToken, expirationRefreshTokenDays));
     }
 
     public async Task<Result<AuthResponse>> GenerateRefreshTokenAsync(string token, string refreshToken, CancellationToken cancellationToken = default)
@@ -70,6 +69,21 @@ public class AuthService(UserManager<ApplicationUser> userManager, IJwtProvider 
         await _userManager.UpdateAsync(user);
         return Result.Success();
     }
+    public async Task<Result> RegisterAsync(RegisterRequest request, CancellationToken cancellationToken = default)
+    {
+        var emailIsExist = await _userManager.Users.AnyAsync(e => e.Email == request.Email,cancellationToken);
+        if (emailIsExist)
+            return Result.Failure<AuthResponse>(UserErrors.DublicatedEmail);
+        var user = request.Adapt<ApplicationUser>();
+        var result = await _userManager.CreateAsync(user,request.Password);
+        // send confirmation email
+        if(result.Succeeded)
+            return Result.Success();
+        var error   = result.Errors.First();
+        return Result.Failure(new Error(error.Code, error.Description, StatusCodes.Status400BadRequest));
+    }
     private static string GenerateRefreshToken() =>
         Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
+
+
 }

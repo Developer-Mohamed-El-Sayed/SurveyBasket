@@ -7,6 +7,7 @@ public static class DependencyInjection
         services
             .AddControllerConfig()
             .AddMapsterConfig()
+            .AddHttpContextAccessor()
             .AddCORSConfig(configuration)
             .AddIdentityConfig()
             .AddValidationConfig()
@@ -50,6 +51,12 @@ public static class DependencyInjection
         services.AddIdentity<ApplicationUser, IdentityRole>()
             .AddDefaultTokenProviders()
             .AddEntityFrameworkStores<SurveyBasketDbContext>();
+        services.Configure<IdentityOptions>(options =>
+        {
+            options.User.RequireUniqueEmail = true;
+            options.SignIn.RequireConfirmedEmail = false;
+            options.Password.RequiredLength = 8;
+        });
         return services;
     }
     private static IServiceCollection AddAuthenticationConfig(this IServiceCollection services,IConfiguration configuration)
