@@ -24,7 +24,8 @@ public class AuthService(UserManager<ApplicationUser> userManager, IJwtProvider 
             ExpiresOn = expirationRefreshTokenDays
         });
         await _userManager.UpdateAsync(user);
-        return Result.Success(new AuthResponse(user.Id, user.FirstName, user.LastName, user.Email, token, expiresIn, refreshToken, expirationRefreshTokenDays));
+        var response = new AuthResponse(user.Id, user.FirstName, user.LastName, user.Email, token, expiresIn, refreshToken, expirationRefreshTokenDays);
+        return Result.Success(response);
     }
 
     public async Task<Result<AuthResponse>> GenerateRefreshTokenAsync(string token, string refreshToken, CancellationToken cancellationToken = default)
