@@ -28,3 +28,6 @@ global using System.Security.Cryptography;
 global using SurveyBasket.API.Abstractions;
 global using SurveyBasket.API.Errors;
 global using Microsoft.AspNetCore.Diagnostics;
+global using SurveyBasket.API.Contracts.Questions.Requests;
+global using SurveyBasket.API.Contracts.Answers.Responses;
+global using SurveyBasket.API.Contracts.Questions.Responses;

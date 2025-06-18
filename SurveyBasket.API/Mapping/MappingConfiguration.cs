@@ -1,4 +1,6 @@
-﻿namespace SurveyBasket.API.Mapping;
+﻿using SurveyBasket.API.Entities;
+
+namespace SurveyBasket.API.Mapping;
 
 public class MappingConfiguration : IRegister
 {
@@ -6,5 +8,7 @@ public class MappingConfiguration : IRegister
     {
         config.NewConfig<RegisterRequest, ApplicationUser>()
             .Map(dest => dest.UserName, src => src.Email);
+        config.NewConfig<QuestionRequest, Question>()
+            .Map(dest => dest.Answers, src => src.Answers.Select(answers => new Answer { Content = answers }));
     }
 }
