@@ -6,6 +6,9 @@ public class PollService(SurveyBasketDbContext context) : IPollService
 
     public async Task<Result<PollResponse>> CreateAsync(PollRequest request, CancellationToken cancellationToken = default)
     {
+        var isExistTitle = await _context.Polls.AnyAsync(t => t.Title == request.Title, cancellationToken: cancellationToken);
+        if (isExistTitle)
+            return Result.Failure<PollResponse>(PollErrors.DublicatedTitle);
         var response = request.Adapt<Poll>();
         await _context.AddAsync(response, cancellationToken);
         await _context.SaveChangesAsync(cancellationToken);
@@ -40,14 +43,18 @@ public class PollService(SurveyBasketDbContext context) : IPollService
         var response = await _context.Polls
             .OrderBy(s => s.StartsAt)
             .SingleOrDefaultAsync(pk => pk.Id == id,cancellationToken);
-        if (response is null)
-            return Result.Failure<PollResponse>(PollErrors.PollNotFound);
         var result = response.Adapt<PollResponse>();
-        return Result.Success(result);
+        return result is not null
+            ? Result.Success(result)
+            : Result.Failure<PollResponse>(PollErrors.PollNotFound);
+        
     }
 
     public async Task<Result> UpdateAsync(int id,PollRequest request, CancellationToken cancellationToken = default)
     {
+        var isExistTitle = await _context.Polls.AnyAsync(t => t.Title == request.Title && t.Id != id, cancellationToken: cancellationToken);
+        if (isExistTitle)
+            return Result.Failure<PollResponse>(PollErrors.DublicatedTitle);
         var response = await GetAsync(id, cancellationToken);
         if(response is null)
             return Result.Failure(PollErrors.PollNotFound);

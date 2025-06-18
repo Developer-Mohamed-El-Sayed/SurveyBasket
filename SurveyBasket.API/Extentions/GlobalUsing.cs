@@ -27,3 +27,4 @@ global using Microsoft.Extensions.Options;
 global using System.Security.Cryptography;
 global using SurveyBasket.API.Abstractions;
 global using SurveyBasket.API.Errors;
+global using Microsoft.AspNetCore.Diagnostics;
