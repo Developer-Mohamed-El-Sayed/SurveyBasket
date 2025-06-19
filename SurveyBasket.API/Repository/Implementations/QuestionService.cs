@@ -22,4 +22,22 @@ public class QuestionService(SurveyBasketDbContext context) : IQuestionService
         await _context.SaveChangesAsync(cancellationToken);
         return Result.Success(response.Adapt<QuestionResponse>());
     }
+
+    public async Task<Result<IEnumerable<QuestionResponse>>> GetAllAsync(int pollId, CancellationToken cancellationToken = default)
+    {
+        var pollIsExist =  await _context.Polls
+            .AnyAsync(x => x.Id == pollId, cancellationToken: cancellationToken);
+        if (!pollIsExist)
+            return Result.Failure<IEnumerable<QuestionResponse>>(PollErrors.PollNotFound);
+
+        var questions = await _context.Questions
+            .Where(x => x.PollId == pollId && x.IsActive)
+            .Include(a => a.Answers)
+            .ProjectToType<QuestionResponse>()
+            .AsNoTracking()
+            .ToListAsync(cancellationToken: cancellationToken);
+
+        var response = questions.Adapt<IEnumerable<QuestionResponse>>();
+        return Result.Success(response);
+    }
 }

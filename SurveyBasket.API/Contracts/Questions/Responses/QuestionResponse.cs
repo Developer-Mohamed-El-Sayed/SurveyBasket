@@ -3,5 +3,5 @@
 public record QuestionResponse(
     int Id,
     string Content,
-    IEnumerable<AnswerResponse> AnswerResponses
+    IEnumerable<AnswerResponse> Answers
 );

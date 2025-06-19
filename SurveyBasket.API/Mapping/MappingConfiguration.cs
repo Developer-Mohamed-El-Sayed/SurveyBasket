@@ -1,6 +1,4 @@
-﻿using SurveyBasket.API.Entities;
-
-namespace SurveyBasket.API.Mapping;
+﻿namespace SurveyBasket.API.Mapping;
 
 public class MappingConfiguration : IRegister
 {

@@ -1,6 +1,7 @@
 ﻿namespace SurveyBasket.API.Controllers;
 [Route("api/polls/{pollId}/[controller]")]
 [ApiController]
+[Authorize]
 public class QuestionsController(IQuestionService questionService) : ControllerBase
 {
     private readonly IQuestionService _questionService = questionService;
@@ -12,9 +13,15 @@ public class QuestionsController(IQuestionService questionService) : ControllerB
             ? CreatedAtAction(nameof(Get), new { pollId,result.Value.Id }, result.Value)
             : result.ToProblem();
     }
-    [HttpGet]
+    [HttpGet("{id}")]
     public async Task<IActionResult> Get()
     {
         return Ok();
+    }
+    [HttpGet]
+    public async Task<IActionResult> Get([FromRoute] int pollId,CancellationToken cancellationToken)
+    {
+        var result = await _questionService.GetAllAsync(pollId,cancellationToken);
+        return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
     }
 }
