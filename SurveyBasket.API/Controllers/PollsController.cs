@@ -38,4 +38,10 @@ public class PollsController(IPollService pollService) : ControllerBase
        var result = await _pollService.DeleteAsync(id,cancellationToken);
         return result.IsSuccess ? NoContent() : result.ToProblem();
     }
+    [HttpPut("{id}/toggle-status")]
+    public async Task<IActionResult> ToggleStatus([FromRoute] int id,CancellationToken cancellationToken)
+    {
+        var result = await _pollService.ToggleStatusAsync(id, cancellationToken);
+        return result.IsSuccess ? NoContent() : result.ToProblem();
+    }
 }

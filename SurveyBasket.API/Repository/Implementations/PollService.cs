@@ -18,10 +18,10 @@ public class PollService(SurveyBasketDbContext context) : IPollService
 
     public async Task<Result> DeleteAsync(int id, CancellationToken cancellationToken = default)
     {
-        var response = await GetAsync(id, cancellationToken);
+        var response = await _context.Polls.FindAsync(id, cancellationToken);
         if(response is null)
             return Result.Failure(PollErrors.PollNotFound);
-        _context.Remove(response.Adapt<Poll>());
+        _context.Remove(response);
         await _context.SaveChangesAsync(cancellationToken);
         return Result.Success();
     }
@@ -50,16 +50,28 @@ public class PollService(SurveyBasketDbContext context) : IPollService
         
     }
 
+    public async Task<Result> ToggleStatusAsync(int id, CancellationToken cancellationToken = default)
+    {
+        var response =  await _context.Polls.FindAsync(id,cancellationToken);
+        if(response is null)
+            return Result.Failure(PollErrors.PollNotFound);
+        response.IsPublished = !response.IsPublished;
+        await _context.SaveChangesAsync(cancellationToken);
+        return Result.Success();
+    }
+
     public async Task<Result> UpdateAsync(int id,PollRequest request, CancellationToken cancellationToken = default)
     {
         var isExistTitle = await _context.Polls.AnyAsync(t => t.Title == request.Title && t.Id != id, cancellationToken: cancellationToken);
         if (isExistTitle)
             return Result.Failure<PollResponse>(PollErrors.DublicatedTitle);
-        var response = await GetAsync(id, cancellationToken);
+        var response = await _context.Polls.FindAsync(id, cancellationToken);
         if(response is null)
             return Result.Failure(PollErrors.PollNotFound);
-        var result = response.Adapt<Poll>();
-        _context.Update(result);
+        response.Title = request.Title;
+        response.EndsAt = request.EndsAt;
+        response.StartsAt = request.StartsAt;   
+        response.Summary = request.Summary;
         await _context.SaveChangesAsync(cancellationToken);
         return Result.Success();
     }
