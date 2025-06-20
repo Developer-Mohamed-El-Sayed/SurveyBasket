@@ -12,6 +12,12 @@ public class PollsController(IPollService pollService) : ControllerBase
         var result = await _pollService.GetAllAsync(cancellationToken);
        return result.IsSuccess ? Ok(result.Value): result.ToProblem();  
     }
+    [HttpGet("current")]
+    public async Task<IActionResult> GetCurrent(CancellationToken cancellationToken = default)
+    {
+        var result = await _pollService.GetCurrentAsync(cancellationToken);
+        return Ok(result);
+    }
     [HttpGet("{id}")]
     public async Task<IActionResult> Get([FromRoute] int id, CancellationToken cancellationToken = default)
     {
