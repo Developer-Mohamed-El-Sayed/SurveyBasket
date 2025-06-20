@@ -25,6 +25,12 @@ public class QuestionsController(IQuestionService questionService) : ControllerB
         var result = await _questionService.GetAllAsync(pollId,cancellationToken);
         return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
     }
+    [HttpGet]
+    public async Task<IActionResult> GetAvailable([FromRoute] int pollId, [FromRoute] string userId, CancellationToken cancellationToken)
+    {
+        var result = await _questionService.GetAvailableAsync(pollId,userId, cancellationToken);
+        return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
+    }
     [HttpPut("{id}/toggle-status")]
     public async Task<IActionResult> ToggleStatus([FromRoute]int pollId, [FromRoute]int id,CancellationToken cancellationToken)
     {
