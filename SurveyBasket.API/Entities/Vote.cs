@@ -1,15 +1,13 @@
 ﻿namespace SurveyBasket.API.Entities;
 
-public sealed class Question : Auditable
+public sealed class Vote : Auditable
 {
     public int Id { get; set; }
-
-    public string Content { get; set; } = string.Empty;
-
-    public bool IsActive { get; set; } = true;
     public int PollId { get; set; }
+    public string UserId { get; set; } = string.Empty;
+    public DateTime SubmittedOn { get; set; } = DateTime.UtcNow;
 
     public Poll Poll { get; set; } = default!;
-    public ICollection<Answer> Answers { get; set; } = [];
+    public ApplicationUser User { get; set; } = default!;
     public ICollection<VoteAnswer> VoteAnswers { get; set; } = [];
 }
