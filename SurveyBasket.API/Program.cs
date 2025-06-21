@@ -1,8 +1,14 @@
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDependenciesServices(builder.Configuration);
+builder.Host.UseSerilog((context, configuration) =>
+{
+    configuration.ReadFrom.Configuration(context.Configuration);
+});
 
 var app = builder.Build();
+
+app.UseSerilogRequestLogging();
 
 app.UseHttpsRedirection();
 

@@ -34,3 +34,4 @@ global using SurveyBasket.API.Contracts.Questions.Responses;
 global using Microsoft.AspNetCore.Authorization;
 global using SurveyBasket.API.Contracts.Votes.Requests;
 global using SurveyBasket.API.Contracts.Results.Responses;
+global using Serilog;
