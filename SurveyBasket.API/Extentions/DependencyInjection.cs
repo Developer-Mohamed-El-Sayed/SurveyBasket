@@ -44,6 +44,7 @@ public static class DependencyInjection
         services.AddScoped<IPollService, PollService>();
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IVoteService, VoteService>();
+        services.AddScoped<IResultService, ResultService>();
         services.AddScoped<IQuestionService, QuestionService>();
         services.AddSingleton<IJwtProvider, JwtProvider>();
         services.AddExceptionHandler<GlobalExceptionHandler>();
