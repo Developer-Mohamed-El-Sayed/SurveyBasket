@@ -1,4 +1,6 @@
-﻿namespace SurveyBasket.API.Repository.Implementations;
+﻿using System.Linq;
+
+namespace SurveyBasket.API.Repository.Implementations;
 
 public class ResultService(SurveyBasketDbContext context) : IResultService
 {
@@ -43,5 +45,25 @@ public class ResultService(SurveyBasketDbContext context) : IResultService
         return votesPerDay is null
             ? Result.Failure<IEnumerable<VotesPerDayResponse>>(VoteErrors.VoteNotFound)
             : Result.Success<IEnumerable<VotesPerDayResponse>>(votesPerDay);
+    }
+    public async Task<Result<IEnumerable<VotePerQuestionResponse>>> GetVotePerQuestionAsync(int pollId,CancellationToken cancellationToken = default)
+    {
+        var pollIsExist = await _context.Polls
+            .AnyAsync(x => x.Id == pollId, cancellationToken);
+        if (!pollIsExist)
+            return Result.Failure<IEnumerable<VotePerQuestionResponse>>(PollErrors.PollNotFound);
+        var votesPerQuestion = await _context.VoteAnswers
+            .Where(x => x.Vote.PollId == pollId)
+            .Select(x => new VotePerQuestionResponse(
+                x.Question.Content,
+                x.Question.VoteAnswers
+                .GroupBy(x => new {AnswerId = x.Answer.Id,AnswerContent = x.Answer.Content })
+                .Select(g => new VotePerAnswersResponse(
+                    g.Key.AnswerContent,
+                    g.Count()
+                ))
+            )).AsNoTracking()
+            .ToListAsync(cancellationToken);
+        return Result.Success<IEnumerable<VotePerQuestionResponse>>(votesPerQuestion);
     }
 }
