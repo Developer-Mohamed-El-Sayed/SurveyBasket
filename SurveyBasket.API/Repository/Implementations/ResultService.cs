@@ -26,4 +26,22 @@ public class ResultService(SurveyBasketDbContext context) : IResultService
             ? Result.Failure<PollVoteResponse>(PollErrors.PollNotFound)
             : Result.Success(pollVotes);
     }
+    public async Task<Result<IEnumerable<VotesPerDayResponse>>> GetPollVotesPerDayAsync(int pollId, CancellationToken cancellationToken = default)
+    {
+        var pollIsExist = await _context.Polls
+            .AnyAsync(x => x.Id == pollId,cancellationToken);
+        if(!pollIsExist)
+            return Result.Failure<IEnumerable<VotesPerDayResponse>>(PollErrors.PollNotFound);
+
+        var votesPerDay = await _context.Votes
+            .Where(x => x.PollId == pollId)
+            .GroupBy(x => new { Date = DateOnly.FromDateTime(x.SubmittedOn) })
+            .Select(g => new VotesPerDayResponse(g.Key.Date, g.Count()))
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
+
+        return votesPerDay is null
+            ? Result.Failure<IEnumerable<VotesPerDayResponse>>(VoteErrors.VoteNotFound)
+            : Result.Success<IEnumerable<VotesPerDayResponse>>(votesPerDay);
+    }
 }
