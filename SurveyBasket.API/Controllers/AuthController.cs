@@ -34,5 +34,11 @@ public class AuthController(IAuthService authService) : ControllerBase
         var result = await _authService.ConfirmEmailAsync(request);
         return result.IsSuccess ? Accepted() : result.ToProblem();
     }
+    [HttpPost("resend-confirm-email")]
+    public async Task<IActionResult> ResendConfirmEmail([FromBody] ResendConfirmationEmailRequest request)
+    {
+        var result = await _authService.ResendConfirmationEmailAsync(request);
+        return result.IsSuccess ? Accepted() : result.ToProblem();
+    }
 }
 
