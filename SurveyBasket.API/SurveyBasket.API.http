@@ -1,10 +1,22 @@
 @SurveyBasket.API_HostAddress = https://localhost:7023
+@Authentication = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im1vaGFtZWRAZ21haWwuY29tIiwiZ2l2ZW5fbmFtZSI6Ik1vaGFtZWQiLCJmYW1pbHlfbmFtZSI6IkVsIFNheWVkIiwianRpIjoiMGQxOWE4YWEtZGU3NS00ZWQ3LWFkZTQtYzQ3ODFhMmU4OTIwIiwic3ViIjoiNjgwNWFmZGEtNzc4Ny00ZWI3LWIyNjYtMjhjZjQxNzIxYzA1IiwiZXhwIjoxNzUwNTk0NzY1LCJpc3MiOiJTdXJ2ZXkgQmFza2V0IEFwcGxpY2F0aW9uIiwiYXVkIjoiU3VydmV5IEJhc2tldCBBcHBsaWNhdGlvbiBVc2VycyJ9.jAAVR1YuEjeGh1w0ZkSxAo5pB3YkphcOs4el444XeNw"
 
 GET {{SurveyBasket.API_HostAddress}}/api/polls // Connect to Internet 
 
 ###
 
-@id=1
+@id=7
 DELETE {{SurveyBasket.API_HostAddress}}/api/polls/{{id}}
+
+###
+
+POST {{SurveyBasket.API_HostAddress}}/api/auth
+Content-Type: application/json
+
+{
+  "email":"mohamed@gmail.com",
+  "password":"P@ssword2004",
+  "Ahmed":"d"
+}
 
 ###

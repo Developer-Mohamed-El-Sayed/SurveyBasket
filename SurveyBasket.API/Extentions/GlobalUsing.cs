@@ -37,3 +37,5 @@ global using SurveyBasket.API.Contracts.Results.Responses;
 global using Serilog;
 global using Microsoft.Extensions.Caching.Distributed;
 global using System.Text.Json;
+global using SurveyBasket.API.Abstractions.Const;
+global using Microsoft.AspNetCore.WebUtilities;

@@ -14,6 +14,8 @@ public class LoginRequestValidator : AbstractValidator<LoginRequest>
 
         RuleFor(p => p.Password)
              .NotEmpty()
-             .WithMessage("Password is required.");
+             .WithMessage("Password is required.")
+             .Matches(RegexPatterns.Password)
+             .WithMessage("Password invalid Format.");
     }
 }

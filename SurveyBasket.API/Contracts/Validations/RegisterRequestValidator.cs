@@ -17,6 +17,8 @@ public class RegisterRequestValidator : AbstractValidator<RegisterRequest>
             .WithMessage("invalid email format.");
         RuleFor(p => p.Password)
             .NotEmpty()
-            .WithMessage("Password is required.");
+            .WithMessage("Password is required.")
+            .Matches(RegexPatterns.Password)
+             .WithMessage("Password invalid Format.");
     }
 }
