@@ -39,3 +39,4 @@ global using Microsoft.Extensions.Caching.Distributed;
 global using System.Text.Json;
 global using SurveyBasket.API.Abstractions.Const;
 global using Microsoft.AspNetCore.WebUtilities;
+global using Microsoft.Extensions.Caching.Hybrid;

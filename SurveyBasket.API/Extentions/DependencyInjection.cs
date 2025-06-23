@@ -11,6 +11,7 @@ public static class DependencyInjection
             .AddCORSConfig(configuration)
             .AddIdentityConfig()
             .AddValidationConfig()
+            .AddHybridCacheConfig()
             .AddRegistrationConfig()
             .AddAuthenticationConfig(configuration)
             .AddConnectionConfig(configuration);
@@ -45,7 +46,6 @@ public static class DependencyInjection
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IVoteService, VoteService>();
         services.AddScoped<IResultService, ResultService>();
-        services.AddScoped<ICacheService, CacheService>();
         services.AddScoped<IQuestionService, QuestionService>();
         services.AddSingleton<IJwtProvider, JwtProvider>();
         services.AddExceptionHandler<GlobalExceptionHandler>();
@@ -102,5 +102,10 @@ public static class DependencyInjection
                 .AllowAnyHeader()
             );
         });
+    private static IServiceCollection AddHybridCacheConfig(this IServiceCollection services)
+    {
+        services.AddHybridCache(); 
+        return services;
+    }
 
 }

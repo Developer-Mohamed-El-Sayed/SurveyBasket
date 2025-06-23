@@ -1,12 +1,12 @@
 ﻿namespace SurveyBasket.API.Repository.Implementations;
 
 public class QuestionService(SurveyBasketDbContext context,
-    ICacheService cacheService,
+    HybridCache hybridCache,
     ILogger<QuestionService> logger
     ) : IQuestionService
 {
     private readonly SurveyBasketDbContext _context = context;
-    private readonly ICacheService _cacheService = cacheService;
+    private readonly HybridCache _hybridCache = hybridCache;
     private readonly ILogger<QuestionService> _logger = logger;
     private const string _cachePrefix = "availableQuestions";
 
@@ -27,7 +27,7 @@ public class QuestionService(SurveyBasketDbContext context,
         await _context.AddAsync(response, cancellationToken);
         await _context.SaveChangesAsync(cancellationToken);
 
-        await _cacheService.RemoveAsync($"{_cachePrefix}-{pollId}", cancellationToken);
+        await _hybridCache.RemoveAsync($"{_cachePrefix}-{pollId}", cancellationToken);
         return Result.Success(response.Adapt<QuestionResponse>());
     }
 
@@ -84,15 +84,10 @@ public class QuestionService(SurveyBasketDbContext context,
 
         var cacheKey = $"{_cachePrefix}-{pollId}"; // key unique for cacheing 
 
-        var cachedQuestions = await _cacheService.GetAsync<IEnumerable<QuestionResponse>>(cacheKey,cancellationToken);
-        IEnumerable<QuestionResponse> questions = [];
-
-        if(cachedQuestions is null)
-        {
-            _logger.LogInformation("select questions from database.");
-            questions = await _context.Questions
-                .Where(x => x.IsActive && x.PollId == pollId)
-                .AsNoTracking()
+        var questions = await _hybridCache.GetOrCreateAsync<IEnumerable<QuestionResponse>>(
+            cacheKey,
+            async cacheEntry => await _context.Questions
+                .Where(x => x.PollId == pollId && x.IsActive)
                 .Include(x => x.Answers)
                 .Select(q => new QuestionResponse(
                     q.Id,
@@ -100,16 +95,10 @@ public class QuestionService(SurveyBasketDbContext context,
                     q.Answers.Where(a => a.IsActive).Select(a => new AnswerResponse(a.Id, a.Content))
                 ))
                 .AsNoTracking()
-                .ToListAsync(cancellationToken);
-            await _cacheService.SetAsync(cacheKey,questions, cancellationToken);
-        }
-        else
-        {
-            _logger.LogInformation("Get questions from Cache.");
+                .ToListAsync(cancellationToken)
+        );
 
-            questions = cachedQuestions;
-        }
-        return Result.Success(questions);
+        return Result.Success(questions!);
     }
 
     public async Task<Result> ToggleStatusAsync(int pollId, int id, CancellationToken cancellationToken = default)
@@ -130,7 +119,7 @@ public class QuestionService(SurveyBasketDbContext context,
         question.IsActive = !question.IsActive;
         await _context.SaveChangesAsync(cancellationToken);
 
-        await _cacheService.RemoveAsync($"{_cachePrefix}-{pollId}", cancellationToken);
+        await _hybridCache.RemoveAsync($"{_cachePrefix}-{pollId}", cancellationToken);
 
         return Result.Success();
     }
@@ -178,7 +167,7 @@ public class QuestionService(SurveyBasketDbContext context,
         }); // if answer is active  true != false 
         await _context.SaveChangesAsync(cancellationToken);
 
-        await _cacheService.RemoveAsync($"{_cachePrefix}-{pollId}", cancellationToken);
+        await _hybridCache.RemoveAsync($"{_cachePrefix}-{pollId}", cancellationToken);
 
         return Result.Success();
     }
