@@ -13,7 +13,9 @@ public static class UserErrors
     public static readonly Error LockOutUser =
     new("User.LockOutUser", "Lock Out User", StatusCodes.Status423Locked);
     public static readonly Error EmailConfirmed =
-new("User.EmailConfirmed", "Email is already Confirmed", StatusCodes.Status400BadRequest);
+    new("User.EmailConfirmed", "Email is already Confirmed", StatusCodes.Status400BadRequest);
     public static readonly Error InvalidCode =
-new("User.InvalidCode", " Invalid Code", StatusCodes.Status401Unauthorized);
+        new("User.InvalidCode", " Invalid Code", StatusCodes.Status401Unauthorized);
+    public static readonly Error InvalidToken =
+new("User.InvalidToken", " Invalid Token", StatusCodes.Status401Unauthorized);
 }

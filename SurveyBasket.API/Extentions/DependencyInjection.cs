@@ -8,6 +8,7 @@ public static class DependencyInjection
             .AddControllerConfig()
             .AddMapsterConfig()
             .AddHttpContextAccessor()
+            .AddMailSettingConfig(configuration)
             .AddCORSConfig(configuration)
             .AddIdentityConfig()
             .AddValidationConfig()
@@ -43,6 +44,7 @@ public static class DependencyInjection
     private static IServiceCollection AddRegistrationConfig(this IServiceCollection services)
     {
         services.AddScoped<IPollService, PollService>();
+        services.AddScoped<IEmailSender, EmailService>();
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IVoteService, VoteService>();
         services.AddScoped<IResultService, ResultService>();
@@ -67,6 +69,8 @@ public static class DependencyInjection
     }
     private static IServiceCollection AddAuthenticationConfig(this IServiceCollection services,IConfiguration configuration)
     {
+        services.Configure<GoogleSettings>(configuration.GetSection(nameof(GoogleSettings))); // add options 
+        var googleSettings = configuration.GetSection(nameof(GoogleSettings)).Get<GoogleSettings>();  // bind data 
         services.AddOptions<JwtOptions>()
             .BindConfiguration(((JwtOptions.SectionName)))
             .ValidateDataAnnotations()
@@ -89,6 +93,12 @@ public static class DependencyInjection
                 ValidAudience = jwtOptions!.Audience,
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Key))
             };
+        })
+        .AddGoogle(Options =>
+        {
+            Options.ClientId = googleSettings!.ClientId;
+            Options.ClientSecret = googleSettings!.ClientSecret;
+            Options.CallbackPath = "/signin-google";
         });
         return services;
     }
@@ -107,5 +117,9 @@ public static class DependencyInjection
         services.AddHybridCache(); 
         return services;
     }
-
+    private static IServiceCollection AddMailSettingConfig(this IServiceCollection services,IConfiguration configuration)
+    {
+        services.Configure<MailSettings>(configuration.GetSection(nameof(MailSettings)));
+        return services;
+    } 
 }

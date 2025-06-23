@@ -1,9 +1,14 @@
-﻿namespace SurveyBasket.API.Repository.Implementations;
+﻿using Google.Apis.Auth;
+
+namespace SurveyBasket.API.Repository.Implementations;
 
 public class AuthService(UserManager<ApplicationUser> userManager,
     IJwtProvider jwtProvider,
     SignInManager<ApplicationUser> signInManager,
-    ILogger<AuthService> logger
+    ILogger<AuthService> logger,
+    IEmailSender emailSender,
+    IHttpContextAccessor httpContextAccessor,
+    IOptions<GoogleSettings> options
     )
     : IAuthService
 {
@@ -11,6 +16,9 @@ public class AuthService(UserManager<ApplicationUser> userManager,
     private readonly IJwtProvider _jwtProvider = jwtProvider;
     private readonly SignInManager<ApplicationUser> _signInManager = signInManager;
     private readonly ILogger<AuthService> _logger = logger;
+    private readonly IEmailSender _emailSender = emailSender;
+    private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
+    private readonly GoogleSettings _options = options.Value;
     private readonly int _expirationRefreshTokenDays = 7;
 
     public async Task<Result<AuthResponse>> LoginAsync(string email, string password, CancellationToken cancellationToken = default)
@@ -123,7 +131,7 @@ public class AuthService(UserManager<ApplicationUser> userManager,
 
  
             _logger.LogInformation("confirmation Code {code} ", code);
-            //TODO Send Email 
+            await SendToEmail(user, code);
             return Result.Success();
         }
         var error   = result.Errors.First();
@@ -139,9 +147,68 @@ public class AuthService(UserManager<ApplicationUser> userManager,
         code = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(code));
         _logger.LogInformation("Resend Confirmation Code: {code} ",code);
 
-        // TODO : Send Email
+        await SendToEmail(user,code);
         return Result.Success();
+    }
+    public async Task<Result<AuthResponse>> LoginGoogleAsync(GoogleRequest request)
+    {
+        if(await VerifyGoogleToken(request.IdToken) is not { } payload)
+            return Result.Failure<AuthResponse>(UserErrors.InvalidToken);
+        var info = new UserLoginInfo(request.Provider, payload.Subject, request.Provider);
+        if (await _userManager.FindByLoginAsync(info.LoginProvider, info.ProviderKey) is not { } user)
+            return Result.Failure<AuthResponse>(UserErrors.InvalidUser);
+        user = await _userManager.FindByEmailAsync(payload.Email);
+        if(user is null)
+            return Result.Failure<AuthResponse>(UserErrors.InvalidCredentials);
+        user = new ApplicationUser
+        {
+            Email = payload.Email,
+            UserName = payload.Email,
+            EmailConfirmed = true
+        };
+        await _userManager.CreateAsync(user);
+        await _userManager.AddLoginAsync(user, info);
+        var (token, expiresIn) = _jwtProvider.GenerateToken(user);
+        var refreshToken = GenerateRefreshToken();
+        var refreshTokenExpiratons = DateTime.UtcNow.AddDays(_expirationRefreshTokenDays);
+        user.RefreshTokens.Add(new RefreshToken
+        {
+            Token = refreshToken,
+            ExpiresOn = refreshTokenExpiratons
+        });
+        await _userManager.UpdateAsync(user);
+        var response = new AuthResponse(user.Id,user.FirstName,user.LastName,user.Email,token,expiresIn,refreshToken,refreshTokenExpiratons);
+        return Result.Success(response);
     }
     private static string GenerateRefreshToken() =>
         Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
+    private async Task SendToEmail(ApplicationUser user,string code)
+    {
+        var origin = _httpContextAccessor.HttpContext?.Request.Headers.Origin;
+        var emailBody = EmailBodyBuilder.GenerateEmailBody(
+            template: "EmailConfirmation",
+            new Dictionary<string, string>
+            {
+                    {"{{Name}}",$"{user.FirstName} {user.LastName}" },
+                    {"{{action_url}}", $"{origin}/auth/confirmationEmail?userId={user.Id}&code={code}"}
+            }
+        );
+        await _emailSender.SendEmailAsync(user.Email!, "Survey Basket: Email Confirmation Done ✅", emailBody);
+    }
+    private async Task<GoogleJsonWebSignature.Payload> VerifyGoogleToken(string idToken)
+    {
+        var settings = new GoogleJsonWebSignature.ValidationSettings
+        {
+            Audience = [_options.ClientId]
+        };
+        try
+        {
+            return await GoogleJsonWebSignature.ValidateAsync(idToken, settings);
+        }
+        catch
+        {
+
+            return null!;
+        }
+    }
 }
