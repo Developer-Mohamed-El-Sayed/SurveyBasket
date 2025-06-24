@@ -49,6 +49,7 @@ public static class DependencyInjection
         services.AddScoped<IVoteService, VoteService>();
         services.AddScoped<IResultService, ResultService>();
         services.AddScoped<IQuestionService, QuestionService>();
+        services.AddScoped<IAccountService, AccountService>();
         services.AddSingleton<IJwtProvider, JwtProvider>();
         services.AddExceptionHandler<GlobalExceptionHandler>();
         services.AddProblemDetails();

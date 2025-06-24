@@ -34,7 +34,7 @@ public class AuthController(IAuthService authService) : ControllerBase
         var result = await _authService.ConfirmEmailAsync(request);
         return result.IsSuccess ? Accepted() : result.ToProblem();
     }
-    [HttpPost("resend-confirm-email")]
+    [HttpPost("resend-confirmation-email")]
     public async Task<IActionResult> ResendConfirmEmail([FromBody] ResendConfirmationEmailRequest request)
     {
         var result = await _authService.ResendConfirmationEmailAsync(request);
@@ -45,6 +45,18 @@ public class AuthController(IAuthService authService) : ControllerBase
     {
         var result = await _authService.LoginGoogleAsync(request);
         return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
+    }
+    [HttpPost("forget-password")]
+    public async Task<IActionResult> ForgetPassword([FromBody] ForgetPasswordRequest request)
+    {
+        var result = await _authService.SendForgetPasswordCodeAsync(request);
+        return result.IsSuccess ? Accepted() : result.ToProblem();
+    }
+    [HttpPost("reset-password")]
+    public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest request)
+    {
+        var result = await _authService.ResetPasswordAsync(request);
+        return result.IsSuccess ? Ok() : result.ToProblem();
     }
 }
 

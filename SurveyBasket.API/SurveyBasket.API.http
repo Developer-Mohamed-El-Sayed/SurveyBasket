@@ -20,3 +20,15 @@ Content-Type: application/json
 }
 
 ###
+
+POST {{SurveyBasket.API_HostAddress}}/api/auth/google-login
+Content-Type: application/json
+{
+
+}
+
+###
+
+GET {{SurveyBasket.API_HostAddress}}/accounts/me
+
+###

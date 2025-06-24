@@ -1,6 +1,4 @@
-﻿using Google.Apis.Auth;
-
-namespace SurveyBasket.API.Repository.Implementations;
+﻿namespace SurveyBasket.API.Repository.Implementations;
 
 public class AuthService(UserManager<ApplicationUser> userManager,
     IJwtProvider jwtProvider,
@@ -131,7 +129,7 @@ public class AuthService(UserManager<ApplicationUser> userManager,
 
  
             _logger.LogInformation("confirmation Code {code} ", code);
-            await SendToEmail(user, code);
+            await SendConfirmationToEmail(user, code);
             return Result.Success();
         }
         var error   = result.Errors.First();
@@ -147,7 +145,7 @@ public class AuthService(UserManager<ApplicationUser> userManager,
         code = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(code));
         _logger.LogInformation("Resend Confirmation Code: {code} ",code);
 
-        await SendToEmail(user,code);
+        await SendConfirmationToEmail(user,code);
         return Result.Success();
     }
     public async Task<Result<AuthResponse>> LoginGoogleAsync(GoogleRequest request)
@@ -180,9 +178,42 @@ public class AuthService(UserManager<ApplicationUser> userManager,
         var response = new AuthResponse(user.Id,user.FirstName,user.LastName,user.Email,token,expiresIn,refreshToken,refreshTokenExpiratons);
         return Result.Success(response);
     }
+    public async Task<Result> SendForgetPasswordCodeAsync(ForgetPasswordRequest request)
+    {
+        if (await _userManager.FindByEmailAsync(request.Email) is not { } user)
+            return Result.Success(); // misleading for hacking 
+        var code = await _userManager.GeneratePasswordResetTokenAsync(user);
+        code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+        _logger.LogInformation("forget password code: {code}", code);
+        await SendForgetPasswordCodeToEmail(user, code);
+        return Result.Success();
+
+    }
+    public async Task<Result> ResetPasswordAsync(ResetPasswordRequest request)
+    {
+        if(await _userManager.FindByEmailAsync(request.Email) is not { } user)
+            return Result.Failure(UserErrors.InvalidCredentials);
+        if (!user.EmailConfirmed)
+            return Result.Failure(UserErrors.InvalidCode); // misleading email not confirmed
+        IdentityResult result;
+        try
+        {
+            var code = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(request.Code));
+            result = await _userManager.ResetPasswordAsync(user, code, request.NewPassword);
+
+        }
+        catch (FormatException)
+        {
+            result =  IdentityResult.Failed(_userManager.ErrorDescriber.InvalidToken());
+        }
+        if(result.Succeeded)
+            return Result.Success();
+        var error = result.Errors.First();
+        return Result.Failure(new Error(error.Code,error.Description,StatusCodes.Status401Unauthorized));
+    }
     private static string GenerateRefreshToken() =>
         Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
-    private async Task SendToEmail(ApplicationUser user,string code)
+    private async Task SendConfirmationToEmail(ApplicationUser user,string code)
     {
         var origin = _httpContextAccessor.HttpContext?.Request.Headers.Origin;
         var emailBody = EmailBodyBuilder.GenerateEmailBody(
@@ -191,6 +222,19 @@ public class AuthService(UserManager<ApplicationUser> userManager,
             {
                     {"{{Name}}",$"{user.FirstName} {user.LastName}" },
                     {"{{action_url}}", $"{origin}/auth/confirmationEmail?userId={user.Id}&code={code}"}
+            }
+        );
+        await _emailSender.SendEmailAsync(user.Email!, "Survey Basket: Email Confirmation Done ✅", emailBody);
+    }
+    private async Task SendForgetPasswordCodeToEmail(ApplicationUser user, string code)
+    {
+        var origin = _httpContextAccessor.HttpContext?.Request.Headers.Origin;
+        var emailBody = EmailBodyBuilder.GenerateEmailBody(
+            template: "ForgetPassword",
+            new Dictionary<string, string>
+            {
+                    {"{{Name}}",$"{user.FirstName} {user.LastName}" },
+                    {"{{action_url}}", $"{origin}/auth/forgetPassword?email={user.Email}&code={code}"}
             }
         );
         await _emailSender.SendEmailAsync(user.Email!, "Survey Basket: Email Confirmation Done ✅", emailBody);
