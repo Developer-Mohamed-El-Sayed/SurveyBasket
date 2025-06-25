@@ -26,6 +26,7 @@ public class QuestionsController(IQuestionService questionService) : ControllerB
         var result = await _questionService.GetAllAsync(pollId,cancellationToken);
         return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
     }
+    [Authorize(Roles = DefaultRoles.Member)]
     [HttpGet("available")]
     public async Task<IActionResult> GetAvailable([FromRoute] int pollId, CancellationToken cancellationToken)
     {
