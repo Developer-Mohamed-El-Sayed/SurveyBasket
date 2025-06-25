@@ -1,6 +1,4 @@
-﻿using System.Runtime.InteropServices;
-
-namespace SurveyBasket.API.Controllers;
+﻿namespace SurveyBasket.API.Controllers;
 [Route("[controller]/me")]
 [ApiController]
 [Authorize]

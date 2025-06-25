@@ -14,9 +14,8 @@ POST {{SurveyBasket.API_HostAddress}}/api/auth
 Content-Type: application/json
 
 {
-  "email":"mohamed@gmail.com",
-  "password":"P@ssword2004",
-  "Ahmed":"d"
+  "email":"admin@survey-basket.com",
+  "password":"P@ssword2004"
 }
 
 ###

@@ -51,6 +51,10 @@ public static class DependencyInjection
         services.AddScoped<IQuestionService, QuestionService>();
         services.AddScoped<IAccountService, AccountService>();
         services.AddSingleton<IJwtProvider, JwtProvider>();
+
+        services.AddTransient<IAuthorizationHandler,PermissionAuthorizationHandler>();
+        services.AddTransient<IAuthorizationPolicyProvider,PermissionAuthorizationPolicyProvider>();
+
         services.AddExceptionHandler<GlobalExceptionHandler>();
         services.AddProblemDetails();
         return services;
