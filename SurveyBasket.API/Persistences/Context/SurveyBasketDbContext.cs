@@ -1,7 +1,7 @@
 ﻿namespace SurveyBasket.API.Persistences.Context;
 
 public class SurveyBasketDbContext(DbContextOptions<SurveyBasketDbContext> options,IHttpContextAccessor httpContextAccessor) 
-    : IdentityDbContext<ApplicationUser>(options)
+    : IdentityDbContext<ApplicationUser,ApplicationRole,string>(options)
 {
     private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
 

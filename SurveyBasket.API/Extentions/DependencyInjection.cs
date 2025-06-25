@@ -57,7 +57,7 @@ public static class DependencyInjection
     }
     private static IServiceCollection AddIdentityConfig(this IServiceCollection services)
     {
-        services.AddIdentity<ApplicationUser, IdentityRole>()
+        services.AddIdentity<ApplicationUser, ApplicationRole>()
             .AddDefaultTokenProviders()
             .AddEntityFrameworkStores<SurveyBasketDbContext>();
         services.Configure<IdentityOptions>(options =>
