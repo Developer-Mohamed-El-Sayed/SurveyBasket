@@ -16,5 +16,23 @@ public class ApplicationUserConfiguration : IEntityTypeConfiguration<Application
             .WithOwner()
             .HasForeignKey("UserId");
 
+        builder
+            .HasData(new ApplicationUser
+            {
+                Id = DefaultUsers.AdminId,
+                FirstName = DefaultUsers.AdminFirstName,
+                LastName = DefaultUsers.AdminLastName,
+                Email = DefaultUsers.AdminEmail,
+                NormalizedEmail = DefaultUsers.AdminEmail.ToUpper(),
+                UserName = DefaultUsers.AdminEmail,
+                NormalizedUserName = DefaultUsers.AdminEmail.ToUpper(),
+                PhoneNumber = DefaultUsers.AdminPhoneNumber,
+                PhoneNumberConfirmed = true,
+                EmailConfirmed = true,
+                ConcurrencyStamp = DefaultUsers.AdminConcurrencyStamp,
+                SecurityStamp = DefaultUsers.AdminSecurityStamp,
+                PasswordHash = DefaultUsers.AdminPassword
+            });
+
     }
 }
