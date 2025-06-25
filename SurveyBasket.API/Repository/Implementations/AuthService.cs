@@ -6,7 +6,8 @@ public class AuthService(UserManager<ApplicationUser> userManager,
     ILogger<AuthService> logger,
     IEmailSender emailSender,
     IHttpContextAccessor httpContextAccessor,
-    IOptions<GoogleSettings> options
+    IOptions<GoogleSettings> options,
+    SurveyBasketDbContext context
     )
     : IAuthService
 {
@@ -16,6 +17,7 @@ public class AuthService(UserManager<ApplicationUser> userManager,
     private readonly ILogger<AuthService> _logger = logger;
     private readonly IEmailSender _emailSender = emailSender;
     private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
+    private readonly SurveyBasketDbContext _context = context;
     private readonly GoogleSettings _options = options.Value;
     private readonly int _expirationRefreshTokenDays = 7;
 
@@ -26,7 +28,8 @@ public class AuthService(UserManager<ApplicationUser> userManager,
         var result = await _signInManager.PasswordSignInAsync(user, password, false, true);
         if (result.Succeeded)
         {
-            var (token, expiresIn) = _jwtProvider.GenerateToken(user);
+            var (userRoles, userPermissions) = await GetUserRolesAndPermissions(user, cancellationToken);
+            var (token, expiresIn) = _jwtProvider.GenerateToken(user,userPermissions,userRoles);
             var refreshToken = GenerateRefreshToken();
             var expirationRefreshTokenDays = DateTime.UtcNow.AddDays(_expirationRefreshTokenDays);
             user.RefreshTokens.Add(new RefreshToken
@@ -60,8 +63,8 @@ public class AuthService(UserManager<ApplicationUser> userManager,
             return Result.Failure<AuthResponse>(UserErrors.InvalidUser);
 
         userRefreshToken.RevokedOn = DateTime.UtcNow;
-
-        var (newToken, expiresIn) = _jwtProvider.GenerateToken(user);
+        var (userRoles, userPermissions) = await GetUserRolesAndPermissions(user, cancellationToken);
+        var (newToken, expiresIn) = _jwtProvider.GenerateToken(user,userPermissions,userRoles);
         var newRefreshToken = GenerateRefreshToken();
         var newExpirationRefreshTokenDays = DateTime.UtcNow.AddDays(_expirationRefreshTokenDays);
         user.RefreshTokens.Add(new RefreshToken
@@ -94,8 +97,11 @@ public class AuthService(UserManager<ApplicationUser> userManager,
             return Result.Failure(UserErrors.InvalidCode);  
         }
          var result = await _userManager.ConfirmEmailAsync(user, code);
-        if(result.Succeeded)
+        if (result.Succeeded)
+        {
+            await _userManager.AddToRoleAsync(user, DefaultRoles.Member);
             return Result.Success(result);
+        }
         var error = result.Errors.First();
         return Result.Failure(new Error(error.Code, error.Description, StatusCodes.Status400BadRequest));
     }
@@ -148,7 +154,7 @@ public class AuthService(UserManager<ApplicationUser> userManager,
         await SendConfirmationToEmail(user,code);
         return Result.Success();
     }
-    public async Task<Result<AuthResponse>> LoginGoogleAsync(GoogleRequest request)
+    public async Task<Result<AuthResponse>> LoginGoogleAsync(GoogleRequest request,CancellationToken cancellationToken = default)
     {
         if(await VerifyGoogleToken(request.IdToken) is not { } payload)
             return Result.Failure<AuthResponse>(UserErrors.InvalidToken);
@@ -166,7 +172,8 @@ public class AuthService(UserManager<ApplicationUser> userManager,
         };
         await _userManager.CreateAsync(user);
         await _userManager.AddLoginAsync(user, info);
-        var (token, expiresIn) = _jwtProvider.GenerateToken(user);
+        var (userRoles, userPermissions) = await GetUserRolesAndPermissions(user,cancellationToken);
+        var (token, expiresIn) = _jwtProvider.GenerateToken(user, userPermissions, userRoles);
         var refreshToken = GenerateRefreshToken();
         var refreshTokenExpiratons = DateTime.UtcNow.AddDays(_expirationRefreshTokenDays);
         user.RefreshTokens.Add(new RefreshToken
@@ -254,5 +261,22 @@ public class AuthService(UserManager<ApplicationUser> userManager,
 
             return null!;
         }
+    }
+    private async Task<(IEnumerable<string> roles, IEnumerable<string> permissions)> GetUserRolesAndPermissions(ApplicationUser user, CancellationToken cancellationToken)
+    {
+        var userRoles = await _userManager.GetRolesAsync(user);
+
+        var userPermissions = await _context.Roles
+            .Join(_context.RoleClaims,
+                role => role.Id,
+                claim => claim.RoleId,
+                (role, claim) => new { role, claim }
+            )
+            .Where(x => userRoles.Contains(x.role.Name!))
+            .Select(x => x.claim.ClaimValue!)
+            .Distinct()
+            .ToListAsync(cancellationToken);
+
+        return (userRoles, userPermissions);
     }
 }

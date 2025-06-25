@@ -8,7 +8,7 @@ public interface IAuthService
     Task<Result> RegisterAsync(RegisterRequest request, CancellationToken cancellationToken = default);
     Task<Result> ConfirmEmailAsync(ConfirmEmailRequest request);
     Task<Result> ResendConfirmationEmailAsync(ResendConfirmationEmailRequest request);
-    Task<Result<AuthResponse>> LoginGoogleAsync(GoogleRequest request);
+    Task<Result<AuthResponse>> LoginGoogleAsync(GoogleRequest request,CancellationToken cancellationToken = default);
     Task<Result> SendForgetPasswordCodeAsync(ForgetPasswordRequest request);
     Task<Result> ResetPasswordAsync(ResetPasswordRequest request);
 }

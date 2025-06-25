@@ -47,3 +47,4 @@ global using SurveyBasket.API.Helpers;
 global using Google.Apis.Auth;
 global using SurveyBasket.API.Contracts.Users.Responses;
 global using SurveyBasket.API.Contracts.Users.Requests;
+global using System.Text.Json;

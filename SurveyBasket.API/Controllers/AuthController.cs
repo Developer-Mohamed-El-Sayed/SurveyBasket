@@ -41,9 +41,9 @@ public class AuthController(IAuthService authService) : ControllerBase
         return result.IsSuccess ? Accepted() : result.ToProblem();
     }
     [HttpPost("google-login")]
-    public async Task<IActionResult> GoogleLogin([FromBody] GoogleRequest request)
+    public async Task<IActionResult> GoogleLogin([FromBody] GoogleRequest request, CancellationToken cancellationToken)
     {
-        var result = await _authService.LoginGoogleAsync(request);
+        var result = await _authService.LoginGoogleAsync(request,cancellationToken);
         return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
     }
     [HttpPost("forget-password")]
