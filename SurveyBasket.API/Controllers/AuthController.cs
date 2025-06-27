@@ -40,7 +40,7 @@ public class AuthController(IAuthService authService) : ControllerBase
         var result = await _authService.ResendConfirmationEmailAsync(request);
         return result.IsSuccess ? Accepted() : result.ToProblem();
     }
-    [HttpPost("google-login")]
+    [HttpPost("google-login")] // fix the bug at this endpoint 
     public async Task<IActionResult> GoogleLogin([FromBody] GoogleRequest request, CancellationToken cancellationToken)
     {
         var result = await _authService.LoginGoogleAsync(request,cancellationToken);

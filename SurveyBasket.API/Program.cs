@@ -1,4 +1,4 @@
-var builder = WebApplication.CreateBuilder(args);
+ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDependenciesServices(builder.Configuration);
 
@@ -12,6 +12,18 @@ var app = builder.Build();
 app.UseSerilogRequestLogging();
 
 app.UseHttpsRedirection();
+app.UseHangfireDashboard("/jobs", new DashboardOptions
+{
+    Authorization =
+    [
+        new HangfireCustomBasicAuthenticationFilter
+        {
+            User = app.Configuration.GetValue<string>("HangfireSettings:UserName"),
+            Pass = app.Configuration.GetValue<string>("HangfireSettings:Password")
+        }
+    ],
+    DashboardTitle = "Survey Basket Dashboard"
+});
 
 app.UseCors();
 

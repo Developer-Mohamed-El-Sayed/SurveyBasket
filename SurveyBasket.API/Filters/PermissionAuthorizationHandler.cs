@@ -1,5 +1,4 @@
-﻿
-namespace SurveyBasket.API.Filters;
+﻿namespace SurveyBasket.API.Filters;
 
 public class PermissionAuthorizationHandler : AuthorizationHandler<PermissionRequirement>
 {

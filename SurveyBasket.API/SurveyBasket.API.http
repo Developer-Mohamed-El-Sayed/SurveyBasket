@@ -1,33 +1,32 @@
 @SurveyBasket.API_HostAddress = https://localhost:7023
-@Authentication = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im1vaGFtZWRAZ21haWwuY29tIiwiZ2l2ZW5fbmFtZSI6Ik1vaGFtZWQiLCJmYW1pbHlfbmFtZSI6IkVsIFNheWVkIiwianRpIjoiMGQxOWE4YWEtZGU3NS00ZWQ3LWFkZTQtYzQ3ODFhMmU4OTIwIiwic3ViIjoiNjgwNWFmZGEtNzc4Ny00ZWI3LWIyNjYtMjhjZjQxNzIxYzA1IiwiZXhwIjoxNzUwNTk0NzY1LCJpc3MiOiJTdXJ2ZXkgQmFza2V0IEFwcGxpY2F0aW9uIiwiYXVkIjoiU3VydmV5IEJhc2tldCBBcHBsaWNhdGlvbiBVc2VycyJ9.jAAVR1YuEjeGh1w0ZkSxAo5pB3YkphcOs4el444XeNw"
-
-GET {{SurveyBasket.API_HostAddress}}/api/polls // Connect to Internet 
-
-###
-
-@id=7
-DELETE {{SurveyBasket.API_HostAddress}}/api/polls/{{id}}
-
-###
 
 POST {{SurveyBasket.API_HostAddress}}/api/auth
 Content-Type: application/json
 
 {
-  "email":"admin@survey-basket.com",
-  "password":"P@ssword2004"
+  "email":"yousef@gmail.com",
+	"password":"P@ssowrd2005"
 }
 
 ###
 
-POST {{SurveyBasket.API_HostAddress}}/api/auth/google-login
+POST {{SurveyBasket.API_HostAddress}}/api/auth/register
 Content-Type: application/json
-{
 
+{
+  "firstName":"Yousef",
+  "lastName":"Mohamed",
+  "email":"yousef@gmail.com",
+	"password":"P@ssowrd2005"
 }
 
 ###
 
-GET {{SurveyBasket.API_HostAddress}}/accounts/me
+POST {{SurveyBasket.API_HostAddress}}/api/auth/confirm-email
+Content-Type: application/json
+
+{
+  "code":"Q2ZESjhGSUVoblRHbDF4SW9jSXI5Ui9VcWtEZXJuWU41TDJkMUlrQVQ4NmVjeTc2cThYV2pTMUc2RTFqYlBCc2tjMXJtM0hRbER1b2JKR3ptdjRvZWxBVlZNYVBYWElzS3o5QkZVRmRjWmErMWtjSldBMkpsdi9KV3g5UHB3MDNUTFN4OWw3R01QeGZWN2x4d2ZNOVZMeWpvc3pxOTRIUmJqS2NjVUJRNEhiMDVLS0RVQmdHU05GRzhpTzBWYWR3akFZejFHYzBQNStlakRmNGpkM1REeEVya0loR3h6c2s2NWFrU1ZxdVdqanNyZkdIUFlBSDcweG8wYTR0Mk9EdW15c3hIdz09"
+}
 
 ###

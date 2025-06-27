@@ -10,6 +10,7 @@ public static class DependencyInjection
             .AddHttpContextAccessor()
             .AddMailSettingConfig(configuration)
             .AddCORSConfig(configuration)
+            .AddHangfireConfig(configuration)
             .AddIdentityConfig()
             .AddValidationConfig()
             .AddHybridCacheConfig()
@@ -127,4 +128,15 @@ public static class DependencyInjection
         services.Configure<MailSettings>(configuration.GetSection(nameof(MailSettings)));
         return services;
     } 
+    private static IServiceCollection AddHangfireConfig(this IServiceCollection services,IConfiguration configuration)
+    {
+        services.AddHangfire(config => config
+        .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+        .UseSimpleAssemblyNameTypeSerializer()
+        .UseRecommendedSerializerSettings()
+        .UseSqlServerStorage(configuration.GetConnectionString("HangfireConnection")));
+
+        services.AddHangfireServer();
+        return services;
+    }
 }

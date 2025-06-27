@@ -231,7 +231,8 @@ public class AuthService(UserManager<ApplicationUser> userManager,
                     {"{{action_url}}", $"{origin}/auth/confirmationEmail?userId={user.Id}&code={code}"}
             }
         );
-        await _emailSender.SendEmailAsync(user.Email!, "Survey Basket: Email Confirmation Done ✅", emailBody);
+        BackgroundJob.Enqueue(() => _emailSender.SendEmailAsync(user.Email!, "Survey Basket: Email Confirmation Done ✅", emailBody));
+        await Task.CompletedTask;
     }
     private async Task SendForgetPasswordCodeToEmail(ApplicationUser user, string code)
     {
@@ -244,7 +245,8 @@ public class AuthService(UserManager<ApplicationUser> userManager,
                     {"{{action_url}}", $"{origin}/auth/forgetPassword?email={user.Email}&code={code}"}
             }
         );
-        await _emailSender.SendEmailAsync(user.Email!, "Survey Basket: Email Confirmation Done ✅", emailBody);
+        BackgroundJob.Enqueue(() => _emailSender.SendEmailAsync(user.Email!, "Survey Basket: Email Confirmation Done ✅", emailBody));
+        await Task.CompletedTask;
     }
     private async Task<GoogleJsonWebSignature.Payload> VerifyGoogleToken(string idToken)
     {
