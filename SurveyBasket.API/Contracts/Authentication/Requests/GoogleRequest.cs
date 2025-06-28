@@ -2,5 +2,5 @@
 
 public record GoogleRequest(
     string IdToken,
-    string Provider = "GOOGLE"
+    string Provider 
 );

@@ -31,21 +31,31 @@ public class QuestionService(SurveyBasketDbContext context,
         return Result.Success(response.Adapt<QuestionResponse>());
     }
 
-    public async Task<Result<IEnumerable<QuestionResponse>>> GetAllAsync(int pollId, CancellationToken cancellationToken = default)
+    public async Task<Result<PaginatedList<QuestionResponse>>> GetAllAsync(int pollId,RequestFilters filters, CancellationToken cancellationToken = default)
     {
         var pollIsExist = await _context.Polls
             .AnyAsync(x => x.Id == pollId, cancellationToken: cancellationToken);
         if (!pollIsExist)
-            return Result.Failure<IEnumerable<QuestionResponse>>(PollErrors.PollNotFound);
+            return Result.Failure<PaginatedList<QuestionResponse>>(PollErrors.PollNotFound);
+        // 
+        var query = _context.Questions
+            .Where(x => x.PollId == pollId);
+        if (!string.IsNullOrEmpty(filters.SearchValue))
+        {
+            query = query.Where(x => x.Content.Contains(filters.SearchValue)); // filter items
+        }
+        if(!string.IsNullOrEmpty(filters.SortColumn))
+        {
+            query = query.OrderBy($"{filters.SortColumn} {filters.SortDirection}");
+        }
 
-        var questions = await _context.Questions
-            .Where(x => x.PollId == pollId && x.IsActive)
+        var sourse = query
             .Include(a => a.Answers)
             .ProjectToType<QuestionResponse>()
-            .AsNoTracking()
-            .ToListAsync(cancellationToken: cancellationToken);
+            .AsNoTracking();
+        // install package linq.dynamic.core
 
-        var response = questions.Adapt<IEnumerable<QuestionResponse>>();
+        var response = await PaginatedList<QuestionResponse>.CreateAsync(sourse,filters.PageNumber,filters.PageSize, cancellationToken);
         return Result.Success(response);
     }
 

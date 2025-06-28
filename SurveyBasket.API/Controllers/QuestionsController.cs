@@ -23,9 +23,9 @@ public class QuestionsController(IQuestionService questionService) : ControllerB
     }
     [HttpGet]
     [HasPermission(Permissions.GetQuestions)]
-    public async Task<IActionResult> Get([FromRoute] int pollId,CancellationToken cancellationToken)
+    public async Task<IActionResult> Get([FromRoute] int pollId, [FromQuery] RequestFilters filters,CancellationToken cancellationToken)
     {
-        var result = await _questionService.GetAllAsync(pollId,cancellationToken);
+        var result = await _questionService.GetAllAsync(pollId,filters,cancellationToken);
         return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
     }
     [Authorize(Roles = DefaultRoles.Member)]
