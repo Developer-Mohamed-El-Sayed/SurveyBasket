@@ -1,4 +1,4 @@
- var builder = WebApplication.CreateBuilder(args);
+var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDependenciesServices(builder.Configuration);
 
@@ -22,8 +22,14 @@ app.UseHangfireDashboard("/jobs", new DashboardOptions
             Pass = app.Configuration.GetValue<string>("HangfireSettings:Password")
         }
     ],
-    DashboardTitle = "Survey Basket Dashboard"
+    DashboardTitle = "Survey Basket Dashboard",
+    IsReadOnlyFunc = (DashboardContext context) => true // to disable any user to do recuring job or select just read only 
 });
+// why i not implement this with notification service
+var scopeFactory = app.Services.GetRequiredService<IServiceScopeFactory>();
+var scope = scopeFactory.CreateScope();
+var notificationService = scope.ServiceProvider.GetRequiredService<INotificationService>();
+RecurringJob.AddOrUpdate("SendNewPollNotification", () => notificationService.SendNewPollNotification(null),Cron.Daily()); // cron site to select any time 
 
 app.UseCors();
 

@@ -1,8 +1,11 @@
 ﻿namespace SurveyBasket.API.Repository.Implementations;
 
-public class PollService(SurveyBasketDbContext context) : IPollService
+public class PollService(SurveyBasketDbContext context,
+    INotificationService notificationService
+    ) : IPollService
 {
     private readonly SurveyBasketDbContext _context = context;
+    private readonly INotificationService _notificationService = notificationService;
 
     public async Task<Result<PollResponse>> CreateAsync(PollRequest request, CancellationToken cancellationToken = default)
     {
@@ -65,6 +68,8 @@ public class PollService(SurveyBasketDbContext context) : IPollService
             return Result.Failure(PollErrors.PollNotFound);
         response.IsPublished = !response.IsPublished;
         await _context.SaveChangesAsync(cancellationToken);
+        if (response.IsPublished && response.StartsAt == DateOnly.FromDateTime(DateTime.UtcNow))
+            BackgroundJob.Enqueue(() => _notificationService.SendNewPollNotification(response.Id));
         return Result.Success();
     }
 

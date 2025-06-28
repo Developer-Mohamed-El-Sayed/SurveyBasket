@@ -50,4 +50,5 @@ global using SurveyBasket.API.Contracts.Users.Requests;
 global using System.Text.Json;
 global using SurveyBasket.API.Filters;
 global using Hangfire;
+global using Hangfire.Dashboard;
 
