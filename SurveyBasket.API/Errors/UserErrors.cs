@@ -18,4 +18,6 @@ public static class UserErrors
         new("User.InvalidCode", " Invalid Code", StatusCodes.Status401Unauthorized);
     public static readonly Error InvalidToken =
 new("User.InvalidToken", " Invalid Token", StatusCodes.Status401Unauthorized);
+    public static readonly Error UserDisabled =
+new("User.UserDisabled", " Invalid User Disabled", StatusCodes.Status401Unauthorized);
 }
