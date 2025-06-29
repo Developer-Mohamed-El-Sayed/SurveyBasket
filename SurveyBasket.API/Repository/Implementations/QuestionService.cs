@@ -44,7 +44,7 @@ public class QuestionService(SurveyBasketDbContext context,
         {
             query = query.Where(x => x.Content.Contains(filters.SearchValue)); // filter items
         }
-        if(!string.IsNullOrEmpty(filters.SortColumn))
+        if (!string.IsNullOrEmpty(filters.SortColumn))
         {
             query = query.OrderBy($"{filters.SortColumn} {filters.SortDirection}");
         }
