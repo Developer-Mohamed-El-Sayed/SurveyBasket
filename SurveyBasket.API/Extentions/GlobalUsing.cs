@@ -52,5 +52,7 @@ global using SurveyBasket.API.Filters;
 global using Hangfire;
 global using Hangfire.Dashboard;
 global using SurveyBasket.API.Contracts.Common;
+global using SurveyBasket.API.Contracts.Roles;
+
 
 
