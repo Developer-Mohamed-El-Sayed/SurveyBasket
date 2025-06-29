@@ -54,4 +54,61 @@ public class RoleService(RoleManager<ApplicationRole> roleManager,SurveyBasketDb
         return Result.Failure<RoleDetailResponse>(new Error(error.Code, error.Description, StatusCodes.Status400BadRequest));
 
     }
+    public async Task<Result> UpdateAsync(string id,RoleRequest request, CancellationToken cancellationToken = default)
+    {
+        if (await _roleManager.FindByIdAsync(id) is not { } role)
+            return Result.Failure(RoleErrors.RoleNotFound);
+
+        var roleIsExist = await _roleManager.Roles
+            .AnyAsync(x => x.Name == request.Name && id != x.Id, cancellationToken: cancellationToken);
+
+        if (roleIsExist)
+            return Result.Failure<RoleDetailResponse>(RoleErrors.DublicatedRole);
+
+        var allowedPermissions = Permissions.GetAllPermissions();
+        if (request.Permissions.Except(allowedPermissions).Any())
+            return Result.Failure<RoleDetailResponse>(RoleErrors.InvalidPermissions);
+
+        role.Name = request.Name;
+
+        var result = await _roleManager.UpdateAsync(role);
+        if (result.Succeeded)
+        {
+            var currentPermissions = await _context.RoleClaims
+                .Where(x => x.RoleId == id && x.ClaimType == Permissions.Type)
+                .Select(x => x.ClaimValue)
+                .ToListAsync(cancellationToken);
+
+            var newPermissions = request.Permissions.Except(currentPermissions)
+                .Select(x => new IdentityRoleClaim<string>
+                {
+                    ClaimType = Permissions.Type,
+                    ClaimValue = x,
+                    RoleId = id
+                });
+
+            var removedPermisssions = currentPermissions.Except(request.Permissions);
+            await _context.RoleClaims
+                .Where(x => x.RoleId == id && removedPermisssions.Contains(x.ClaimValue))
+                .ExecuteDeleteAsync(cancellationToken);
+
+            await _context.AddRangeAsync(newPermissions, cancellationToken);
+            await _context.SaveChangesAsync(cancellationToken);
+            return Result.Success();
+        }
+        var error = result.Errors.First();
+        return Result.Failure<RoleDetailResponse>(new Error(error.Code, error.Description, StatusCodes.Status400BadRequest));
+
+    }
+    public async Task<Result> ToggleStatusAsync(string id)
+    {
+        if (await _roleManager.FindByIdAsync(id) is not { } role)
+            return Result.Failure(RoleErrors.RoleNotFound);
+        role.IsDeleted = !role.IsDeleted;
+        var result = await _roleManager.UpdateAsync(role);
+        if(result.Succeeded)
+            return Result.Success();
+        var error = result.Errors.First();
+        return Result.Failure(new Error(error.Code,error.Description,StatusCodes.Status400BadRequest));
+    }
 }

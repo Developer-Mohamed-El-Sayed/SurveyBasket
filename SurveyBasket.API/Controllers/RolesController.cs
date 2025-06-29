@@ -25,8 +25,22 @@ public class RolesController(IRoleService roleService) : ControllerBase
     {
         var result =  await _roleService.CreateAsync(request,cancellationToken);
         return result.IsSuccess ?
-            CreatedAtAction(nameof(Get), new { result.Value.Id }, result)
+            CreatedAtAction(nameof(Get), new { result.Value.Id }, result.Value)
             : result.ToProblem();
+    }
+    [HttpPut("{id}")]
+    [HasPermission(Permissions.UpdateRoles)]
+    public async Task<IActionResult> Update([FromRoute] string id, [FromBody] RoleRequest request,CancellationToken cancellationToken)
+    {
+        var result = await _roleService.UpdateAsync(id, request,cancellationToken);
+        return result.IsSuccess ? NoContent() : result.ToProblem();
+    }
+    [HttpPut("{id}/toggle-status")]
+    [HasPermission(Permissions.UpdateRoles)]
+    public async Task<IActionResult> ToggleStatus([FromRoute] string id)
+    {
+        var result = await _roleService.ToggleStatusAsync(id);
+        return result.IsSuccess ? NoContent() : result.ToProblem();
     }
 
 }
