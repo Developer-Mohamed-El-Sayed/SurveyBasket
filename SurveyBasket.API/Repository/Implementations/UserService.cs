@@ -1,8 +1,9 @@
 ﻿namespace SurveyBasket.API.Repository.Implementations;
 
-public class UserService(SurveyBasketDbContext context, UserManager<ApplicationUser> userManager) : IUserService
+public class UserService(SurveyBasketDbContext context, IRoleService roleService, UserManager<ApplicationUser> userManager) : IUserService
 {
     private readonly SurveyBasketDbContext _context = context;
+    private readonly IRoleService _roleService = roleService;
     private readonly UserManager<ApplicationUser> _userManager = userManager;
 
     public async Task<IEnumerable<UserResponse>> GetAllAsync(CancellationToken cancellationToken = default) =>
@@ -39,5 +40,26 @@ public class UserService(SurveyBasketDbContext context, UserManager<ApplicationU
         var userRoles = await _userManager.GetRolesAsync(user);
         var response = (user,userRoles).Adapt<UserResponse>();
         return Result.Success(response);
+    }
+    public async Task<Result<UserResponse>> CreateAsync(CreateUserRequest request,CancellationToken cancellationToken = default)
+    {
+        var emailIsExist = await _userManager.Users.AnyAsync(x => x.Email == request.Email, cancellationToken);
+        if(emailIsExist)
+            return Result.Failure<UserResponse>(UserErrors.DublicatedEmail);
+        var allowedRoles = await _roleService.GetAllAsync(cancellationToken);
+        if (request.Roles.Except(allowedRoles.Select(x => x.Name)).Any())
+            return Result.Failure<UserResponse>(RoleErrors.RoleNotFound);
+
+        var user = request.Adapt<ApplicationUser>();
+        var result = await _userManager.CreateAsync(user, request.Password);
+        if(result.Succeeded)
+        {
+            await _userManager.AddToRolesAsync(user, request.Roles);
+            var response =(user,request.Roles).Adapt<UserResponse>();
+            return Result.Success(response);
+        }
+        var error = result.Errors.First();
+        return Result.Failure<UserResponse>(new Error(error.Code, error.Description, StatusCodes.Status400BadRequest));
+
     }
 }

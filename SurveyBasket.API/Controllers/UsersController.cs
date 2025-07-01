@@ -18,4 +18,13 @@ public class UsersController(IUserService userService) : ControllerBase
         var result = await _userService.GetAsync(id);
         return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
     }
+    [HttpPost]
+    [HasPermission(Permissions.CreateUsers)]
+    public async Task<IActionResult> Create([FromBody] CreateUserRequest request , CancellationToken cancellationToken)
+    {
+        var result = await _userService.CreateAsync(request , cancellationToken);
+        return result.IsSuccess ?
+            CreatedAtAction(nameof(Get), new {result.Value.Id},result.Value)
+            : result.ToProblem();
+    }
 }
