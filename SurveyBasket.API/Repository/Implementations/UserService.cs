@@ -1,8 +1,9 @@
 ﻿namespace SurveyBasket.API.Repository.Implementations;
 
-public class UserService(SurveyBasketDbContext context) : IUserService
+public class UserService(SurveyBasketDbContext context, UserManager<ApplicationUser> userManager) : IUserService
 {
     private readonly SurveyBasketDbContext _context = context;
+    private readonly UserManager<ApplicationUser> _userManager = userManager;
 
     public async Task<IEnumerable<UserResponse>> GetAllAsync(CancellationToken cancellationToken = default) =>
         await(  from user in _context.Users
@@ -31,4 +32,12 @@ public class UserService(SurveyBasketDbContext context) : IUserService
             x.SelectMany(r => r.Roles)
         ))
         .ToListAsync(cancellationToken);
+    public async Task<Result<UserResponse>> GetAsync(string id)
+    {
+        if (await _userManager.FindByIdAsync(id) is not { } user)
+            return Result.Failure<UserResponse>(UserErrors.InvalidUser);
+        var userRoles = await _userManager.GetRolesAsync(user);
+        var response = (user,userRoles).Adapt<UserResponse>();
+        return Result.Success(response);
+    }
 }

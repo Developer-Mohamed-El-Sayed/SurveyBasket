@@ -11,4 +11,11 @@ public class UsersController(IUserService userService) : ControllerBase
         var result = await _userService.GetAllAsync(cancellationToken);
         return Ok(result);
     }
+    [HttpGet("{id}")]
+    [HasPermission(Permissions.GetUsers)]
+    public async Task<IActionResult> Get([FromRoute] string id)
+    {
+        var result = await _userService.GetAsync(id);
+        return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
+    }
 }
