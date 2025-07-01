@@ -16,7 +16,12 @@ public class MappingConfiguration : IRegister
             .Map(dest => dest.Roles, src => src.roles);
 
         config.NewConfig<CreateUserRequest, ApplicationUser>()
-    .Map(dest => dest.UserName, src => src.Email)
-    .Map(dest => dest.EmailConfirmed,src => true);
+            .Map(dest => dest.UserName, src => src.Email)
+            .Map(dest => dest.EmailConfirmed,src => true);
+
+        config.NewConfig<UpdateUserRequest, ApplicationUser>()
+            .Map(dest => dest.UserName, src => src.Email)
+            .Map(dest => dest.NormalizedEmail,src => src.Email.ToUpper()); // cuz the updateAsync() not contain normalization at method
+
     }
 }

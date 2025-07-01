@@ -62,4 +62,29 @@ public class UserService(SurveyBasketDbContext context, IRoleService roleService
         return Result.Failure<UserResponse>(new Error(error.Code, error.Description, StatusCodes.Status400BadRequest));
 
     }
+    public async Task<Result> UpdateAsync(string id, UpdateUserRequest request,CancellationToken cancellationToken = default)
+    {
+        var emailIsExist = await _userManager.Users.AnyAsync(x => x.Email == request.Email && x.Id != id, cancellationToken);
+        if (emailIsExist)
+            return Result.Failure<UserResponse>(UserErrors.DublicatedEmail);
+        var allowedRoles = await _roleService.GetAllAsync(cancellationToken);
+        if (request.Roles.Except(allowedRoles.Select(x => x.Name)).Any())
+            return Result.Failure<UserResponse>(RoleErrors.RoleNotFound);
+        if (await _userManager.FindByIdAsync(id) is not { } user)
+            return Result.Failure(UserErrors.InvalidUser);
+        user = request.Adapt(user);
+
+
+        var result = await _userManager.UpdateAsync(user);
+        if (result.Succeeded)
+        {
+            await _context.UserRoles
+                .Where(x => x.UserId == id)
+                .ExecuteDeleteAsync(cancellationToken: cancellationToken);
+            await _userManager.AddToRolesAsync(user,request.Roles);
+            return Result.Success();
+        }
+        var error = result.Errors.First();
+        return Result.Failure<UserResponse>(new Error(error.Code, error.Description, StatusCodes.Status400BadRequest));
+    }
 }
