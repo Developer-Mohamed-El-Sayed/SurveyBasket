@@ -53,7 +53,6 @@ public class QuestionService(SurveyBasketDbContext context,
             .Include(a => a.Answers)
             .ProjectToType<QuestionResponse>()
             .AsNoTracking();
-        // install package linq.dynamic.core
 
         var response = await PaginatedList<QuestionResponse>.CreateAsync(sourse,filters.PageNumber,filters.PageSize, cancellationToken);
         return Result.Success(response);

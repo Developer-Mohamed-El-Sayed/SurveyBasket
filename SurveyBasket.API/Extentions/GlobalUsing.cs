@@ -53,6 +53,8 @@ global using Hangfire;
 global using Hangfire.Dashboard;
 global using SurveyBasket.API.Contracts.Common;
 global using SurveyBasket.API.Contracts.Roles;
+global using HangfireBasicAuthenticationFilter;
+global using System.Linq.Dynamic.Core;
 
 
 

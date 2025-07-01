@@ -16,7 +16,6 @@ app.UseHangfireDashboard("/jobs", new DashboardOptions
 {
     Authorization =
     [
-        // install package custom.basic.authentication
         new HangfireCustomBasicAuthenticationFilter
         {
             User = app.Configuration.GetValue<string>("HangfireSettings:UserName"),
