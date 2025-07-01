@@ -6,5 +6,6 @@ public interface IUserService
     Task<Result<UserResponse>> GetAsync(string id);
     Task<Result<UserResponse>> CreateAsync(CreateUserRequest request, CancellationToken cancellationToken = default);
     Task<Result> ToggleStatusAsync(string id);
+    Task<Result> UnLockAsync(string id);
     Task<Result> UpdateAsync(string id, UpdateUserRequest request, CancellationToken cancellationToken = default);
 }
