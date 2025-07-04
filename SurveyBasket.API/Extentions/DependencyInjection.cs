@@ -7,6 +7,7 @@ public static class DependencyInjection
         services
             .AddControllerConfig()
             .AddMapsterConfig()
+            .AddHealthCheckConfig()
             .AddHttpContextAccessor()
             .AddMailSettingConfig(configuration)
             .AddCORSConfig(configuration)
@@ -140,6 +141,20 @@ public static class DependencyInjection
         .UseSqlServerStorage(configuration.GetConnectionString("HangfireConnection")));
 
         services.AddHangfireServer();
+        return services;
+    }
+    private static IServiceCollection AddHealthCheckConfig(this IServiceCollection services , IConfiguration configuration)
+    {
+        var connectionString = configuration.GetConnectionString("DefaultConnection") ??
+            throw new InvalidOperationException("Connection string 'DefaultConnection' not found. Please check your appsettings.json.");
+
+        services.AddHealthChecks()
+            .AddSqlServer(name: "database service",
+                connectionString: connectionString,
+                healthQuery: "SELECT 1;"
+            )
+            .AddHangfire(Options => { Options.MinimumAvailableServers = 1;},name:"hangfire service")
+            .AddCheck<MailProviderHealthCheck>(name: "mail service");
         return services;
     }
 }

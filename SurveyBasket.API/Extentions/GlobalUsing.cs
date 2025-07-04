@@ -55,6 +55,10 @@ global using SurveyBasket.API.Contracts.Common;
 global using SurveyBasket.API.Contracts.Roles;
 global using HangfireBasicAuthenticationFilter;
 global using System.Linq.Dynamic.Core;
+global using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+global using Microsoft.Extensions.Diagnostics.HealthChecks;
+global using SurveyBasket.API.Health;
+global using HealthChecks.UI.Client;
 
 
 
