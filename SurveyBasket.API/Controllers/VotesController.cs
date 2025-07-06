@@ -2,6 +2,7 @@
 [Route("api/polls/{pollId}/[controller]")]
 [ApiController]
 [Authorize(Roles = DefaultRoles.Member)]
+[EnableRateLimiting(DefaultRateLimit.TokenLimit)]
 public class VotesController(IVoteService voteService) : ControllerBase
 {
     private readonly IVoteService _voteService = voteService;

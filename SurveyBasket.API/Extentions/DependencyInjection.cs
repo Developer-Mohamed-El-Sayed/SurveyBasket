@@ -7,7 +7,8 @@ public static class DependencyInjection
         services
             .AddControllerConfig()
             .AddMapsterConfig()
-            .AddHealthCheckConfig()
+            .AddRateLimiterConfig()
+            .AddHealthCheckConfig(configuration)
             .AddHttpContextAccessor()
             .AddMailSettingConfig(configuration)
             .AddCORSConfig(configuration)
@@ -155,6 +156,35 @@ public static class DependencyInjection
             )
             .AddHangfire(Options => { Options.MinimumAvailableServers = 1;},name:"hangfire service")
             .AddCheck<MailProviderHealthCheck>(name: "mail service");
+        return services;
+    }
+    private static IServiceCollection AddRateLimiterConfig(this IServiceCollection services)
+    {
+        services.AddRateLimiter(rateLimiterOptions =>
+        {
+            rateLimiterOptions.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+            rateLimiterOptions.AddTokenBucketLimiter(DefaultRateLimit.TokenLimit, options =>
+            {
+                options.TokenLimit = 1000;
+                options.QueueLimit = 100;
+                options.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+                options.ReplenishmentPeriod = TimeSpan.FromSeconds(20);
+                options.TokensPerPeriod = 2;
+                options.AutoReplenishment = true;
+            });
+            rateLimiterOptions.AddPolicy(DefaultRateLimit.IpLimit, httpContext =>
+                RateLimitPartition.GetFixedWindowLimiter(
+                    partitionKey: httpContext.Connection.RemoteIpAddress?.ToString(),
+                    factory: _ => new FixedWindowRateLimiterOptions
+                    {
+                        PermitLimit = 100,
+                        QueueLimit = 2,
+                        Window = TimeSpan.FromSeconds(10)
+                    }
+
+                )
+            );
+        });
         return services;
     }
 }

@@ -2,6 +2,7 @@
 [Route("api/polls/{pollId}/[controller]")]
 [ApiController]
 [HasPermission(Permissions.Results)]
+[EnableRateLimiting(DefaultRateLimit.TokenLimit)]
 public class ResultsController(IResultService resultService) : ControllerBase
 {
     private readonly IResultService _resultService = resultService;

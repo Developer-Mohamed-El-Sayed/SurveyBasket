@@ -59,6 +59,8 @@ global using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 global using Microsoft.Extensions.Diagnostics.HealthChecks;
 global using SurveyBasket.API.Health;
 global using HealthChecks.UI.Client;
+global using Microsoft.AspNetCore.RateLimiting;
+global using System.Threading.RateLimiting;
 
 
 

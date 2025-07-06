@@ -1,6 +1,7 @@
 ﻿namespace SurveyBasket.API.Controllers;
 [Route("api/polls/{pollId}/[controller]")]
 [ApiController]
+[EnableRateLimiting(DefaultRateLimit.TokenLimit)]
 public class QuestionsController(IQuestionService questionService) : ControllerBase
 {
     private readonly IQuestionService _questionService = questionService;
