@@ -8,6 +8,7 @@ public static class DependencyInjection
             .AddControllerConfig()
             .AddMapsterConfig()
             .AddRateLimiterConfig()
+            .AddSwaggerConfig()
             .AddHealthCheckConfig(configuration)
             .AddHttpContextAccessor()
             .AddMailSettingConfig(configuration)
@@ -187,4 +188,7 @@ public static class DependencyInjection
         });
         return services;
     }
+    private static IServiceCollection AddSwaggerConfig(this IServiceCollection services) =>
+        services.AddEndpointsApiExplorer()
+        .AddSwaggerGen();
 }

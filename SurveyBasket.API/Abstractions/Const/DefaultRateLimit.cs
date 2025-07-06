@@ -2,6 +2,6 @@
 
 public static class DefaultRateLimit
 {
-    public const string IpLimit = "tokenLimit";
-    public const string TokenLimit = "tokenLimit";
+    public const string IpLimit = nameof(IpLimit);
+    public const string TokenLimit = nameof(TokenLimit);
 }
