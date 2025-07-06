@@ -1,6 +1,6 @@
 ﻿namespace SurveyBasket.API.Abstractions.Const;
 
-public static class DefaultUsers
+public static class DefaultUsers // use Parial Class
 {
     public const string AdminId = "0FD4A426-BDD8-4EC4-AC89-1E9C23169E87";
     public const string AdminEmail = "admin@survey-basket.com";

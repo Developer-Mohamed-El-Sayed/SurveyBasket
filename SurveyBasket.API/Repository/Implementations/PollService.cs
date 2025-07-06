@@ -63,7 +63,7 @@ public class PollService(SurveyBasketDbContext context,
 
     public async Task<Result> ToggleStatusAsync(int id, CancellationToken cancellationToken = default)
     {
-        var response =  await _context.Polls.FindAsync(id,cancellationToken);
+        var response = await _context.Polls.FindAsync(id, cancellationToken);
         if(response is null)
             return Result.Failure(PollErrors.PollNotFound);
         response.IsPublished = !response.IsPublished;
@@ -81,10 +81,7 @@ public class PollService(SurveyBasketDbContext context,
         var response = await _context.Polls.FindAsync(id, cancellationToken);
         if(response is null)
             return Result.Failure(PollErrors.PollNotFound);
-        response.Title = request.Title;
-        response.EndsAt = request.EndsAt;
-        response.StartsAt = request.StartsAt;   
-        response.Summary = request.Summary;
+        response = request.Adapt(response);
         await _context.SaveChangesAsync(cancellationToken);
         return Result.Success();
     }

@@ -24,7 +24,7 @@ public static class DependencyInjection
     }
     private static IServiceCollection AddControllerConfig(this IServiceCollection services) 
     {
-         services.AddControllers();
+        services.AddControllers();
         return services;
     }
     private static IServiceCollection  AddMapsterConfig(this IServiceCollection services)
@@ -81,7 +81,10 @@ public static class DependencyInjection
     }
     private static IServiceCollection AddAuthenticationConfig(this IServiceCollection services,IConfiguration configuration)
     {
-        services.Configure<GoogleSettings>(configuration.GetSection(nameof(GoogleSettings))); // add options 
+        services.AddOptions<GoogleSettings>()
+            .BindConfiguration(nameof(GoogleSettings))
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
         var googleSettings = configuration.GetSection(nameof(GoogleSettings)).Get<GoogleSettings>();  // bind data 
         services.AddOptions<JwtOptions>()
             .BindConfiguration(((JwtOptions.SectionName)))
@@ -131,7 +134,10 @@ public static class DependencyInjection
     }
     private static IServiceCollection AddMailSettingConfig(this IServiceCollection services,IConfiguration configuration)
     {
-        services.Configure<MailSettings>(configuration.GetSection(nameof(MailSettings)));
+        services.AddOptions<MailSettings>()
+            .BindConfiguration(nameof(MailSettings))
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
         return services;
     } 
     private static IServiceCollection AddHangfireConfig(this IServiceCollection services,IConfiguration configuration)
