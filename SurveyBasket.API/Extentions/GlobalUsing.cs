@@ -61,6 +61,8 @@ global using SurveyBasket.API.Health;
 global using HealthChecks.UI.Client;
 global using Microsoft.AspNetCore.RateLimiting;
 global using System.Threading.RateLimiting;
+global using Swashbuckle.AspNetCore.SwaggerGen;
+global using Microsoft.OpenApi.Models;
 
 
 

@@ -74,7 +74,7 @@ public static class DependencyInjection
         services.Configure<IdentityOptions>(options =>
         {
             options.User.RequireUniqueEmail = true;
-            options.SignIn.RequireConfirmedEmail = false;
+            options.SignIn.RequireConfirmedEmail = true;
             options.Password.RequiredLength = 8;
         });
         return services;
@@ -188,7 +188,13 @@ public static class DependencyInjection
         });
         return services;
     }
-    private static IServiceCollection AddSwaggerConfig(this IServiceCollection services) =>
-        services.AddEndpointsApiExplorer()
-        .AddSwaggerGen();
+    private static IServiceCollection AddSwaggerConfig(this IServiceCollection services)
+    {
+        services
+            .AddEndpointsApiExplorer()
+            .AddSwaggerGen();
+            services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
+        return services;
+    }  
+
 }
