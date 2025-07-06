@@ -1,6 +1,4 @@
-﻿using System.Linq;
-
-namespace SurveyBasket.API.Repository.Implementations;
+﻿namespace SurveyBasket.API.Repository.Implementations;
 
 public class ResultService(SurveyBasketDbContext context) : IResultService
 {
@@ -19,7 +17,7 @@ public class ResultService(SurveyBasketDbContext context) : IResultService
                     v.VoteAnswers.Select(a => new QuestionAnswerResponse(
                         a.Question.Content,
                         a.Answer.Content
-                
+
 
             ))))))
             .AsNoTracking()
@@ -31,8 +29,8 @@ public class ResultService(SurveyBasketDbContext context) : IResultService
     public async Task<Result<IEnumerable<VotesPerDayResponse>>> GetPollVotesPerDayAsync(int pollId, CancellationToken cancellationToken = default)
     {
         var pollIsExist = await _context.Polls
-            .AnyAsync(x => x.Id == pollId,cancellationToken);
-        if(!pollIsExist)
+            .AnyAsync(x => x.Id == pollId, cancellationToken);
+        if (!pollIsExist)
             return Result.Failure<IEnumerable<VotesPerDayResponse>>(PollErrors.PollNotFound);
 
         var votesPerDay = await _context.Votes
@@ -46,7 +44,7 @@ public class ResultService(SurveyBasketDbContext context) : IResultService
             ? Result.Failure<IEnumerable<VotesPerDayResponse>>(VoteErrors.VoteNotFound)
             : Result.Success<IEnumerable<VotesPerDayResponse>>(votesPerDay);
     }
-    public async Task<Result<IEnumerable<VotePerQuestionResponse>>> GetVotePerQuestionAsync(int pollId,CancellationToken cancellationToken = default)
+    public async Task<Result<IEnumerable<VotePerQuestionResponse>>> GetVotePerQuestionAsync(int pollId, CancellationToken cancellationToken = default)
     {
         var pollIsExist = await _context.Polls
             .AnyAsync(x => x.Id == pollId, cancellationToken);
@@ -57,7 +55,7 @@ public class ResultService(SurveyBasketDbContext context) : IResultService
             .Select(x => new VotePerQuestionResponse(
                 x.Question.Content,
                 x.Question.VoteAnswers
-                .GroupBy(x => new {AnswerId = x.Answer.Id,AnswerContent = x.Answer.Content })
+                .GroupBy(x => new { AnswerId = x.Answer.Id, AnswerContent = x.Answer.Content })
                 .Select(g => new VotePerAnswersResponse(
                     g.Key.AnswerContent,
                     g.Count()

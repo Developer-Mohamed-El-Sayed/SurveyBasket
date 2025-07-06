@@ -7,7 +7,7 @@ public class UpdateUserProfileRequestValidator : AbstractValidator<UpdateUserPro
         RuleFor(f => f.FirstName)
             .NotEmpty();
 
-        RuleFor(l =>  l.LastName)
+        RuleFor(l => l.LastName)
             .NotEmpty();
     }
 }

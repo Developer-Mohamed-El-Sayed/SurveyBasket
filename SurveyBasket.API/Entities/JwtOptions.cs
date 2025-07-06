@@ -1,6 +1,6 @@
 ﻿namespace SurveyBasket.API.Entities;
 
-public  class JwtOptions
+public class JwtOptions
 {
     public static string SectionName = "Jwt";
     [Required]

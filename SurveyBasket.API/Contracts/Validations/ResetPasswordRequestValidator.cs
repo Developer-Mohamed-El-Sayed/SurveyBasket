@@ -20,6 +20,6 @@ public class ResetPasswordRequestValidator : AbstractValidator<ResetPasswordRequ
 
         RuleFor(c => c.Code)
                .NotEmpty();
-    
+
     }
 }

@@ -11,7 +11,7 @@ public class PollsController(IPollService pollService) : ControllerBase
     public async Task<IActionResult> Get(CancellationToken cancellationToken = default)
     {
         var result = await _pollService.GetAllAsync(cancellationToken);
-       return result.IsSuccess ? Ok(result.Value): result.ToProblem();  
+        return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
     }
     [Authorize(Roles = DefaultRoles.Member)]
     [HttpGet("current")]
@@ -45,14 +45,14 @@ public class PollsController(IPollService pollService) : ControllerBase
     }
     [HasPermission(Permissions.DeletePolls)]
     [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete([FromRoute]int id,CancellationToken cancellationToken = default)
+    public async Task<IActionResult> Delete([FromRoute] int id, CancellationToken cancellationToken = default)
     {
-       var result = await _pollService.DeleteAsync(id,cancellationToken);
+        var result = await _pollService.DeleteAsync(id, cancellationToken);
         return result.IsSuccess ? NoContent() : result.ToProblem();
     }
     [HttpPut("{id}/toggle-status")]
     [HasPermission(Permissions.UpdatePolls)]
-    public async Task<IActionResult> ToggleStatus([FromRoute] int id,CancellationToken cancellationToken)
+    public async Task<IActionResult> ToggleStatus([FromRoute] int id, CancellationToken cancellationToken)
     {
         var result = await _pollService.ToggleStatusAsync(id, cancellationToken);
         return result.IsSuccess ? NoContent() : result.ToProblem();

@@ -6,15 +6,15 @@ public class MailProviderHealthCheck(IOptions<MailSettings> options) : IHealthCh
 
     public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
     {
-		try
-		{
+        try
+        {
             var smtp = new SmtpClient();
             smtp.Connect(_options.Host, _options.Port, SecureSocketOptions.StartTls, cancellationToken);
             smtp.Authenticate(_options.Mail, _options.Password, cancellationToken);
             return await Task.FromResult(HealthCheckResult.Healthy());
         }
-		catch (Exception exception)
-		{
+        catch (Exception exception)
+        {
             return await Task.FromResult(HealthCheckResult.Unhealthy(exception: exception));
         }
     }

@@ -17,11 +17,11 @@ public class MappingConfiguration : IRegister
 
         config.NewConfig<CreateUserRequest, ApplicationUser>()
             .Map(dest => dest.UserName, src => src.Email)
-            .Map(dest => dest.EmailConfirmed,src => true);
+            .Map(dest => dest.EmailConfirmed, src => true);
 
         config.NewConfig<UpdateUserRequest, ApplicationUser>()
             .Map(dest => dest.UserName, src => src.Email)
-            .Map(dest => dest.NormalizedEmail,src => src.Email.ToUpper()); // cuz the updateAsync() not contain normalization at method
+            .Map(dest => dest.NormalizedEmail, src => src.Email.ToUpper()); // cuz the updateAsync() not contain normalization at method
 
     }
 }

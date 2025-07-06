@@ -2,7 +2,7 @@
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddDependenciesServices(this IServiceCollection services,IConfiguration configuration)
+    public static IServiceCollection AddDependenciesServices(this IServiceCollection services, IConfiguration configuration)
     {
         services
             .AddControllerConfig()
@@ -22,12 +22,12 @@ public static class DependencyInjection
             .AddConnectionConfig(configuration);
         return services;
     }
-    private static IServiceCollection AddControllerConfig(this IServiceCollection services) 
+    private static IServiceCollection AddControllerConfig(this IServiceCollection services)
     {
         services.AddControllers();
         return services;
     }
-    private static IServiceCollection  AddMapsterConfig(this IServiceCollection services)
+    private static IServiceCollection AddMapsterConfig(this IServiceCollection services)
     {
         var mappingConfig = TypeAdapterConfig.GlobalSettings;
         mappingConfig.Scan(Assembly.GetExecutingAssembly());
@@ -37,7 +37,7 @@ public static class DependencyInjection
     private static IServiceCollection AddValidationConfig(this IServiceCollection services) =>
         services.AddFluentValidationAutoValidation()
         .AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
-    private static IServiceCollection AddConnectionConfig(this IServiceCollection services,IConfiguration configuration)
+    private static IServiceCollection AddConnectionConfig(this IServiceCollection services, IConfiguration configuration)
     {
         var connectionString = configuration.GetConnectionString("DefaultConnection") ??
             throw new InvalidOperationException("Connection string 'DefaultConnection' not found. Please check your appsettings.json.");
@@ -59,8 +59,8 @@ public static class DependencyInjection
         services.AddScoped<IAccountService, AccountService>();
         services.AddSingleton<IJwtProvider, JwtProvider>();
 
-        services.AddTransient<IAuthorizationHandler,PermissionAuthorizationHandler>();
-        services.AddTransient<IAuthorizationPolicyProvider,PermissionAuthorizationPolicyProvider>();
+        services.AddTransient<IAuthorizationHandler, PermissionAuthorizationHandler>();
+        services.AddTransient<IAuthorizationPolicyProvider, PermissionAuthorizationPolicyProvider>();
 
         services.AddExceptionHandler<GlobalExceptionHandler>();
         services.AddProblemDetails();
@@ -79,7 +79,7 @@ public static class DependencyInjection
         });
         return services;
     }
-    private static IServiceCollection AddAuthenticationConfig(this IServiceCollection services,IConfiguration configuration)
+    private static IServiceCollection AddAuthenticationConfig(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddOptions<GoogleSettings>()
             .BindConfiguration(nameof(GoogleSettings))
@@ -117,10 +117,10 @@ public static class DependencyInjection
         });
         return services;
     }
-    private static IServiceCollection AddCORSConfig(this IServiceCollection services,IConfiguration configuration) =>
+    private static IServiceCollection AddCORSConfig(this IServiceCollection services, IConfiguration configuration) =>
         services.AddCors(options =>
         {
-            options.AddDefaultPolicy(option => 
+            options.AddDefaultPolicy(option =>
                 option
                 .WithOrigins(configuration.GetSection("AllowedOrigins").Get<string[]>()!)
                 .AllowAnyMethod()
@@ -129,18 +129,18 @@ public static class DependencyInjection
         });
     private static IServiceCollection AddHybridCacheConfig(this IServiceCollection services)
     {
-        services.AddHybridCache(); 
+        services.AddHybridCache();
         return services;
     }
-    private static IServiceCollection AddMailSettingConfig(this IServiceCollection services,IConfiguration configuration)
+    private static IServiceCollection AddMailSettingConfig(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddOptions<MailSettings>()
             .BindConfiguration(nameof(MailSettings))
             .ValidateDataAnnotations()
             .ValidateOnStart();
         return services;
-    } 
-    private static IServiceCollection AddHangfireConfig(this IServiceCollection services,IConfiguration configuration)
+    }
+    private static IServiceCollection AddHangfireConfig(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddHangfire(config => config
         .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
@@ -151,7 +151,7 @@ public static class DependencyInjection
         services.AddHangfireServer();
         return services;
     }
-    private static IServiceCollection AddHealthCheckConfig(this IServiceCollection services , IConfiguration configuration)
+    private static IServiceCollection AddHealthCheckConfig(this IServiceCollection services, IConfiguration configuration)
     {
         var connectionString = configuration.GetConnectionString("DefaultConnection") ??
             throw new InvalidOperationException("Connection string 'DefaultConnection' not found. Please check your appsettings.json.");
@@ -161,7 +161,7 @@ public static class DependencyInjection
                 connectionString: connectionString,
                 healthQuery: "SELECT 1;"
             )
-            .AddHangfire(Options => { Options.MinimumAvailableServers = 1;},name:"hangfire service")
+            .AddHangfire(Options => { Options.MinimumAvailableServers = 1; }, name: "hangfire service")
             .AddCheck<MailProviderHealthCheck>(name: "mail service");
         return services;
     }
@@ -199,8 +199,8 @@ public static class DependencyInjection
         services
             .AddEndpointsApiExplorer()
             .AddSwaggerGen();
-            services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
+        services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
         return services;
-    }  
+    }
 
 }

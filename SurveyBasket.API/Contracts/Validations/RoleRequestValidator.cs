@@ -4,7 +4,7 @@ public class RoleRequestValidator : AbstractValidator<RoleRequest>
 {
     public RoleRequestValidator()
     {
-        RuleFor(n =>  n.Name)
+        RuleFor(n => n.Name)
             .NotEmpty();
 
         RuleFor(p => p.Permissions)

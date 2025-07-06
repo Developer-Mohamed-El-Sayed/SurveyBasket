@@ -25,6 +25,6 @@ public class ApplicationRoleConfiguration : IEntityTypeConfiguration<Application
             ]);
 
 
-            
+
     }
 }

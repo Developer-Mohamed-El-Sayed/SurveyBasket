@@ -1,6 +1,6 @@
 ﻿namespace SurveyBasket.API.Abstractions;
 
-public class PaginatedList<T>(List<T> items,int pageNumber,int count,int pageSize)
+public class PaginatedList<T>(List<T> items, int pageNumber, int count, int pageSize)
 {
     public List<T> Items { get; private set; } = items;
     public int PageNumber { get; private set; } = pageNumber;
@@ -10,7 +10,7 @@ public class PaginatedList<T>(List<T> items,int pageNumber,int count,int pageSiz
 
 
     // Method return Paginated List 
-    public static async Task<PaginatedList<T>> CreateAsync(IQueryable<T> source,int pageNumber,int pageSize,CancellationToken cancellationToken = default)
+    public static async Task<PaginatedList<T>> CreateAsync(IQueryable<T> source, int pageNumber, int pageSize, CancellationToken cancellationToken = default)
     {
         var count = await source.CountAsync(cancellationToken);
         var items = await source.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync(cancellationToken: cancellationToken);

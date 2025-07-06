@@ -19,7 +19,7 @@ public class QuestionRequestValidator : AbstractValidator<QuestionRequest>
         RuleFor(a => a.Answers)
             .Must(a => a.Count > 1)
             .WithMessage("question should be at least 2 answers")
-            .When(x=>x.Answers != null);
+            .When(x => x.Answers != null);
 
         RuleFor(a => a.Answers)
             .Must(a => a.Distinct().Count() == a.Count)

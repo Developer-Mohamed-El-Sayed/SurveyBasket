@@ -14,10 +14,10 @@ public class NotificationService(SurveyBasketDbContext context,
     public async Task SendNewPollNotification(int? pollId = null)
     {
         IEnumerable<Poll> polls = [];
-        if(pollId.HasValue)
+        if (pollId.HasValue)
         {
-             var  poll = await _context.Polls
-                .SingleOrDefaultAsync(x => x.Id == pollId && x.IsPublished);
+            var poll = await _context.Polls
+               .SingleOrDefaultAsync(x => x.Id == pollId && x.IsPublished);
             polls = [poll!];
         }
         else

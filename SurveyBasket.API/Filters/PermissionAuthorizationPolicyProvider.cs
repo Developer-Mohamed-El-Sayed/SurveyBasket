@@ -11,7 +11,7 @@ public class PermissionAuthorizationPolicyProvider(IOptions<AuthorizationOptions
         var permissionPolicy = new AuthorizationPolicyBuilder()
             .AddRequirements(new PermissionRequirement(policyName))
             .Build();
-        _options.AddPolicy(policyName, permissionPolicy);  
+        _options.AddPolicy(policyName, permissionPolicy);
         return permissionPolicy;
     }
 }

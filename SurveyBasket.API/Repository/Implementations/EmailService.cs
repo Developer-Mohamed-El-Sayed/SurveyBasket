@@ -20,8 +20,8 @@ public class EmailService(IOptions<MailSettings> options) : IEmailSender
         };
         message.Body = builder.ToMessageBody();
         var smtp = new SmtpClient();
-        smtp.Connect(_options.Host,_options.Port,SecureSocketOptions.StartTls);
-        smtp.Authenticate(_options.Mail,_options.Password);
+        smtp.Connect(_options.Host, _options.Port, SecureSocketOptions.StartTls);
+        smtp.Authenticate(_options.Mail, _options.Password);
         await smtp.SendAsync(message);
         smtp.Disconnect(true);
     }

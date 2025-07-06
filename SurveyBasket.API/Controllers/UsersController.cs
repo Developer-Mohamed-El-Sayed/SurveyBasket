@@ -20,18 +20,18 @@ public class UsersController(IUserService userService) : ControllerBase
     }
     [HttpPost]
     [HasPermission(Permissions.CreateUsers)]
-    public async Task<IActionResult> Create([FromBody] CreateUserRequest request , CancellationToken cancellationToken)
+    public async Task<IActionResult> Create([FromBody] CreateUserRequest request, CancellationToken cancellationToken)
     {
-        var result = await _userService.CreateAsync(request , cancellationToken);
+        var result = await _userService.CreateAsync(request, cancellationToken);
         return result.IsSuccess ?
-            CreatedAtAction(nameof(Get), new {result.Value.Id},result.Value)
+            CreatedAtAction(nameof(Get), new { result.Value.Id }, result.Value)
             : result.ToProblem();
     }
     [HttpPut("{id}")]
     [HasPermission(Permissions.UpdateUsers)]
-    public async Task<IActionResult> Update([FromRoute] string id, [FromBody] UpdateUserRequest request,CancellationToken cancellationToken)
+    public async Task<IActionResult> Update([FromRoute] string id, [FromBody] UpdateUserRequest request, CancellationToken cancellationToken)
     {
-        var result =  await _userService.UpdateAsync(id, request , cancellationToken);
+        var result = await _userService.UpdateAsync(id, request, cancellationToken);
         return result.IsSuccess ? NoContent() : result.ToProblem();
     }
     [HttpPut("{id}/toggle-status")]

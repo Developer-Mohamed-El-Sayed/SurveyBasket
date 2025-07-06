@@ -31,7 +31,7 @@ public class QuestionService(SurveyBasketDbContext context,
         return Result.Success(response.Adapt<QuestionResponse>());
     }
 
-    public async Task<Result<PaginatedList<QuestionResponse>>> GetAllAsync(int pollId,RequestFilters filters, CancellationToken cancellationToken = default)
+    public async Task<Result<PaginatedList<QuestionResponse>>> GetAllAsync(int pollId, RequestFilters filters, CancellationToken cancellationToken = default)
     {
         var pollIsExist = await _context.Polls
             .AnyAsync(x => x.Id == pollId, cancellationToken: cancellationToken);
@@ -54,7 +54,7 @@ public class QuestionService(SurveyBasketDbContext context,
             .ProjectToType<QuestionResponse>()
             .AsNoTracking();
 
-        var response = await PaginatedList<QuestionResponse>.CreateAsync(sourse,filters.PageNumber,filters.PageSize, cancellationToken);
+        var response = await PaginatedList<QuestionResponse>.CreateAsync(sourse, filters.PageNumber, filters.PageSize, cancellationToken);
         return Result.Success(response);
     }
 
@@ -82,13 +82,13 @@ public class QuestionService(SurveyBasketDbContext context,
         return Result.Success(question);
     }
 
-    public async Task<Result<IEnumerable<QuestionResponse>>> GetAvailableAsync(int pollId,string userId ,CancellationToken cancellationToken = default)
+    public async Task<Result<IEnumerable<QuestionResponse>>> GetAvailableAsync(int pollId, string userId, CancellationToken cancellationToken = default)
     {
         var hasVote = await _context.Votes.AnyAsync(x => x.PollId == pollId && x.UserId == userId, cancellationToken: cancellationToken);
         if (hasVote)
             return Result.Failure<IEnumerable<QuestionResponse>>(VoteErrors.DublicatedVote);
-        var pollIsExist = await _context.Polls.AnyAsync(x => x.Id == pollId && x.StartsAt <= DateOnly.FromDateTime(DateTime.UtcNow) && x.EndsAt>= DateOnly.FromDateTime(DateTime.UtcNow), cancellationToken);
-        if(!pollIsExist)
+        var pollIsExist = await _context.Polls.AnyAsync(x => x.Id == pollId && x.StartsAt <= DateOnly.FromDateTime(DateTime.UtcNow) && x.EndsAt >= DateOnly.FromDateTime(DateTime.UtcNow), cancellationToken);
+        if (!pollIsExist)
             return Result.Failure<IEnumerable<QuestionResponse>>(PollErrors.PollNotFound);
 
         var cacheKey = $"{_cachePrefix}-{pollId}"; // key unique for cacheing 

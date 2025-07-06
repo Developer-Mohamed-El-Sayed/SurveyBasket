@@ -14,8 +14,8 @@ public class AccountsController(IAccountService accountService) : ControllerBase
     [HttpPut("info")]
     public async Task<IActionResult> UpdateInfo([FromBody] UpdateUserProfileRequest request)
     {
-        var result = await _accountService.UpdateUserProfileAsync(User.GetUserId(), request);   
-        return result.IsSuccess ? NoContent() : result.ToProblem() ; 
+        var result = await _accountService.UpdateUserProfileAsync(User.GetUserId(), request);
+        return result.IsSuccess ? NoContent() : result.ToProblem();
     }
     [HttpPut("change-password")]
     public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest request)
@@ -29,4 +29,4 @@ public class AccountsController(IAccountService accountService) : ControllerBase
         var result = await _accountService.LogOutAsync(User.GetUserId());
         return result.IsSuccess ? Accepted() : result.ToProblem();
     }
-} 
+}

@@ -1,14 +1,14 @@
 ﻿namespace SurveyBasket.API.Persistences.Context;
 
-public class SurveyBasketDbContext(DbContextOptions<SurveyBasketDbContext> options,IHttpContextAccessor httpContextAccessor) 
-    : IdentityDbContext<ApplicationUser,ApplicationRole,string>(options)
+public class SurveyBasketDbContext(DbContextOptions<SurveyBasketDbContext> options, IHttpContextAccessor httpContextAccessor)
+    : IdentityDbContext<ApplicationUser, ApplicationRole, string>(options)
 {
     private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
 
-    public DbSet<Answer> Answers {  get; set; }
-    public DbSet<Question> Questions {  get; set; }
-    public DbSet<Vote> Votes {  get; set; }
-    public DbSet<Poll> Polls {  get; set; }
+    public DbSet<Answer> Answers { get; set; }
+    public DbSet<Question> Questions { get; set; }
+    public DbSet<Vote> Votes { get; set; }
+    public DbSet<Poll> Polls { get; set; }
     public DbSet<VoteAnswer> VoteAnswers { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -24,7 +24,7 @@ public class SurveyBasketDbContext(DbContextOptions<SurveyBasketDbContext> optio
 
         base.OnModelCreating(modelBuilder);
     }
-    public override  Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         var entries = ChangeTracker.Entries<Auditable>();
 

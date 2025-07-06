@@ -1,11 +1,11 @@
 ﻿namespace SurveyBasket.API.Repository.Implementations;
 
-public class RoleService(RoleManager<ApplicationRole> roleManager,SurveyBasketDbContext context) : IRoleService
+public class RoleService(RoleManager<ApplicationRole> roleManager, SurveyBasketDbContext context) : IRoleService
 {
     private readonly RoleManager<ApplicationRole> _roleManager = roleManager;
     private readonly SurveyBasketDbContext _context = context;
 
-    public async Task<IEnumerable<RoleResponse>> GetAllAsync(CancellationToken cancellationToken = default) => 
+    public async Task<IEnumerable<RoleResponse>> GetAllAsync(CancellationToken cancellationToken = default) =>
         await _roleManager.Roles
         .Where(x => !x.IsDefault)
         .AsNoTracking()
@@ -20,11 +20,11 @@ public class RoleService(RoleManager<ApplicationRole> roleManager,SurveyBasketDb
         var response = new RoleDetailResponse(id, role.Name!, role.IsDeleted, permissions.Select(x => x.Value));
         return Result.Success(response);
     }
-    public async Task<Result<RoleDetailResponse>> CreateAsync(RoleRequest request,CancellationToken cancellationToken = default)
+    public async Task<Result<RoleDetailResponse>> CreateAsync(RoleRequest request, CancellationToken cancellationToken = default)
     {
         var roleIsExist = await _roleManager.RoleExistsAsync(request.Name);
 
-        if(roleIsExist)
+        if (roleIsExist)
             return Result.Failure<RoleDetailResponse>(RoleErrors.DublicatedRole);
 
         var allowedPermissions = Permissions.GetAllPermissions();
@@ -35,7 +35,7 @@ public class RoleService(RoleManager<ApplicationRole> roleManager,SurveyBasketDb
             Name = request.Name,
             ConcurrencyStamp = Guid.NewGuid().ToString()
         };
-       var result =  await _roleManager.CreateAsync(role);
+        var result = await _roleManager.CreateAsync(role);
         if (result.Succeeded)
         {
             var permissions = request.Permissions
@@ -54,7 +54,7 @@ public class RoleService(RoleManager<ApplicationRole> roleManager,SurveyBasketDb
         return Result.Failure<RoleDetailResponse>(new Error(error.Code, error.Description, StatusCodes.Status400BadRequest));
 
     }
-    public async Task<Result> UpdateAsync(string id,RoleRequest request, CancellationToken cancellationToken = default)
+    public async Task<Result> UpdateAsync(string id, RoleRequest request, CancellationToken cancellationToken = default)
     {
         if (await _roleManager.FindByIdAsync(id) is not { } role)
             return Result.Failure(RoleErrors.RoleNotFound);
@@ -106,9 +106,9 @@ public class RoleService(RoleManager<ApplicationRole> roleManager,SurveyBasketDb
             return Result.Failure(RoleErrors.RoleNotFound);
         role.IsDeleted = !role.IsDeleted;
         var result = await _roleManager.UpdateAsync(role);
-        if(result.Succeeded)
+        if (result.Succeeded)
             return Result.Success();
         var error = result.Errors.First();
-        return Result.Failure(new Error(error.Code,error.Description,StatusCodes.Status400BadRequest));
+        return Result.Failure(new Error(error.Code, error.Description, StatusCodes.Status400BadRequest));
     }
 }

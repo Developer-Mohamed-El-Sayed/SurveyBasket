@@ -34,7 +34,7 @@ app.UseHangfireDashboard("/jobs", new DashboardOptions
 var scopeFactory = app.Services.GetRequiredService<IServiceScopeFactory>();
 var scope = scopeFactory.CreateScope();
 var notificationService = scope.ServiceProvider.GetRequiredService<INotificationService>();
-RecurringJob.AddOrUpdate("SendNewPollNotification", () => notificationService.SendNewPollNotification(null),Cron.Daily()); // cron site to select any time 
+RecurringJob.AddOrUpdate("SendNewPollNotification", () => notificationService.SendNewPollNotification(null), Cron.Daily()); // cron site to select any time 
 
 app.UseCors();
 
@@ -48,7 +48,7 @@ app.UseExceptionHandler();
 
 app.UseRateLimiter();
 
-app.MapHealthChecks("health",new HealthCheckOptions
+app.MapHealthChecks("health", new HealthCheckOptions
 {
     ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
 });
