@@ -1,5 +1,5 @@
 ﻿namespace SurveyBasket.API.Controllers;
-[Route("[controller]/me")]
+[Route("me")]
 [ApiController]
 [Authorize]
 public class AccountsController(IAccountService accountService) : ControllerBase
@@ -22,11 +22,5 @@ public class AccountsController(IAccountService accountService) : ControllerBase
     {
         var result = await _accountService.ChangePasswordAsync(User.GetUserId(), request);
         return result.IsSuccess ? NoContent() : result.ToProblem();
-    }
-    [HttpPost("log-out")] // Not Working 
-    public async Task<IActionResult> LogOut()
-    {
-        var result = await _accountService.LogOutAsync(User.GetUserId());
-        return result.IsSuccess ? Accepted() : result.ToProblem();
     }
 }

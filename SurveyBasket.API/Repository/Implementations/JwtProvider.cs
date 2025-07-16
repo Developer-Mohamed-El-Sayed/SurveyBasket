@@ -1,6 +1,4 @@
-﻿
-
-namespace SurveyBasket.API.Repository.Implementations;
+﻿namespace SurveyBasket.API.Repository.Implementations;
 
 public class JwtProvider(IOptions<JwtOptions> options) : IJwtProvider
 {
